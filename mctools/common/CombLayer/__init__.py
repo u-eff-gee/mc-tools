@@ -25,7 +25,7 @@ def distance(x1, y1, z1, x2, y2, z2 ):
     return math.sqrt(pow(x2-x1, 2) + pow(y2-y1, 2) + pow(z2-z1, 2))
 
 
-def getPar(masterfile, parname, pos=2, comment="c"):
+def getPar(masterfile, parname, pos=2, comment="c", ignore_not_found=False):
     """
     Return the value of the 'parname' variable. The CombLayer syntax is assumed.
     pos - optional argument, specifies the position of the value in the string
@@ -35,14 +35,17 @@ def getPar(masterfile, parname, pos=2, comment="c"):
         if comment == "*":
             comment = "\*"
         for line in f.readlines():
-            if re.search("\A%s %s " % (comment, parname), line, re.IGNORECASE):
+            if re.search("\A%s +%s " % (comment, parname), line, re.IGNORECASE):
             # print (line.strip(), val)
                 try:
                     return float(line.split()[pos])
                 except ValueError:
                     return line.split()[pos] # non-float
 
-    raise IOError("Value of %s not found in %s" % (parname, masterfile))
+    if ignore_not_found:
+        return None
+    else:
+        raise IOError("Value of %s not found in %s" % (parname, masterfile))
 
 def getOmega(fname, f5name):
     """Return solid angle of a F5 collimator"""
