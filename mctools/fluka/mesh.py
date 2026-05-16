@@ -65,7 +65,7 @@ def main():
 
     x_min, x_max, num_bins, bin_width = define_1d_mesh(x_min_approx, x_max_approx, bin_width_approx, boundary1, boundary2)
 
-    print(f"min: {x_min}\tmax: {x_max}\tnbins: {num_bins}\tbin width: {bin_width=}")
+    print(f"min: {x_min}\tmax: {x_max}\tnbins: {num_bins}\tbin width: {bin_width}")
 
     # edges = [x_min + i * (x_max - x_min) / num_bins for i in range(num_bins + 1)]
     # print(edges)

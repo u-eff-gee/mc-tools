@@ -7,9 +7,9 @@ Prints the material comment string, assuming that the material description line 
 and contains the word 'Material' - as is the case in CombLayer-generated input files.
 """
 
-    echo "Usage:" $(basename $0) m file.inp
-    echo "       file.inp - FLUKA input file"
+    echo "Usage:" $(basename $0) file.inp m
     echo "       m        - material name (number with or without the 'M' prefix)"
+    echo "       file.inp - FLUKA input file"
 };
 
 
@@ -19,7 +19,7 @@ if [ $# != 2 ]; then
 fi
 
 if [ ! -e $1 ]; then
-    echo "Can't open file $2"
+    echo "Can't open file $1"
     exit 1
 fi
 
