@@ -5,10 +5,11 @@ from array import array
 from mctools.fluka.flair import fortran
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
+ROOT.gROOT.SetBatch(True)
 
 
 def main():
-    """Convert PLOTGEOM output into a ROOT TMuiltiGraph object
+    """Convert PLOTGEOM output into a ROOT TMultiGraph object
 
     """
 
@@ -78,6 +79,16 @@ def main():
             if args.verbose:
                 print(f"Plane == {plane}")
 
+            if plane == "xy":
+                xtitle, ytitle = "x [cm]", "y [cm]"
+            elif plane == "xz":
+                xtitle, ytitle = "x [cm]", "z [cm]"
+            elif plane == "yz":
+                xtitle, ytitle = "y [cm]", "z [cm]"
+            else:
+                xtitle = f"({TXX:.3g}, {TXY:.3g}, {TXZ:.3g}) [cm]"
+                ytitle = f"({TYX:.3g}, {TYY:.3g}, {TYZ:.3g}) [cm]"
+
             for i in range(1):
                 data = fortran.read(f)
                 size = len(data)
@@ -93,7 +104,7 @@ def main():
 
             i = 0
             fout = ROOT.TFile(rootFileName, "recreate", plotgeom)
-            mg = ROOT.TMultiGraph("mg", title)
+            mg = ROOT.TMultiGraph("mg", f"{title};{xtitle};{ytitle}")
             while True:
                 i = i + 1
                 data = fortran.read(f)
