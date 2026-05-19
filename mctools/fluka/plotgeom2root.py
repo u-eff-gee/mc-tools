@@ -89,18 +89,10 @@ def main():
                 xtitle = f"({TXX:.3g}, {TXY:.3g}, {TXZ:.3g}) [cm]"
                 ytitle = f"({TYX:.3g}, {TYY:.3g}, {TYZ:.3g}) [cm]"
 
-            for i in range(1):
-                data = fortran.read(f)
-                size = len(data)
-                # if args.verbose:
-                #     print("size: ",size)
-                if size==8:
-                    NWORMS,dummy = struct.unpack("=2i", data)
-                    # if args.verbose:
-                    #     print("NWORMS:",NWORMS,dummy)
-#                elif size==12: # this is never called
-#                    NWORMS,dummy,dummy1 = struct.unpack("=3i", data)
-#                    print(NWORMS,dummy,dummy1)
+            data = fortran.read(f)
+            size = len(data)
+            if size==8:
+                NWORMS,dummy = struct.unpack("=2i", data)
 
             i = 0
             fout = ROOT.TFile(rootFileName, "recreate", plotgeom)
@@ -111,22 +103,15 @@ def main():
                 if data is None:
                     break
                 size = len(data)
-                # if args.verbose:
-                #     print("\nsize:",size)
 
                 if size == 12:
                     windex,dummy,wlength = struct.unpack("=3i",data)
-                    # if args.verbose:
-                    #     print(windex,dummy,wlength)
                 elif size==8:
-                    tmp = struct.unpack("=2i", data)
-                    # if args.verbose:
-                    #     print("size8:",tmp)
-##                    break
+                    pass
+#                    tmp = struct.unpack("=2i", data)
                 elif size==24:
-                    tmp = struct.unpack("=3i3f", data)
-                    # if args.verbose:
-                    #     print("size24:",tmp)
+                    pass
+#                    tmp = struct.unpack("=3i3f", data)
                 else:
                     coord = struct.unpack("=%df" % (wlength*2),data) # pairs of x,y
 
