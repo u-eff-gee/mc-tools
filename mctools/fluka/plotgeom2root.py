@@ -41,7 +41,10 @@ def main():
             size = len(data)
             if size != 80:
                 sys.exit("Format error [title]")
-            title = struct.unpack("=80s", data)[0].decode('utf-8').strip()
+            decoded = struct.unpack("=80s", data)[0].decode('utf-8')
+            if '***COMPRESSED***' in decoded:
+                sys.exit(f"{plotgeom}: compressed PLOTGEOM files are not supported")
+            title = decoded.strip()
             if args.verbose:
                 print("Title:",title)
 
