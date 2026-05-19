@@ -17,9 +17,7 @@ def main():
     parser.add_argument('plotgeom', type=str, nargs='*', help='list of plotgeom files')
     parser.add_argument('-o', dest='root', type=str, help='output ROOT file name', default="")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='print what is being done')
-    parser.add_argument('-p', '--plane', dest='plane', type=str, help='Plane type: xy, xz, yz, arbitrary, or guess (default)', default="guess")
     parser.add_argument('-f', '--force', action='store_true', default=False, dest='overwrite', help='overwrite the output ROOT file')
-
 
     args = parser.parse_args()
 
@@ -61,21 +59,18 @@ def main():
                 print("horizontal/vertical axes length:",XAXLEN,YAXLEN)
 #                print(X0,Y0,Z0,X1,Y1,Z1,TYX,TYY,TYZ,TXX,TXY,TXZ,XAXLEN,YAXLEN)
 
+            # Determine plane type from direction cosines of the picture axes.
+            # The picture x-axis is (TXX,TXY,TXZ) and y-axis is (TYX,TYY,TYZ).
+            # If both axes have no Z component the picture lies in the XY plane, etc.
             tol = 1e-3
-            if args.plane in ("xy", "yx", "xz", "zx", "yz", "zy", "arbitrary"):
-                plane = args.plane
+            if abs(TXZ) < tol and abs(TYZ) < tol:
+                plane = "xy"
+            elif abs(TXY) < tol and abs(TYY) < tol:
+                plane = "xz"
+            elif abs(TXX) < tol and abs(TYX) < tol:
+                plane = "yz"
             else:
-                # Determine plane type from direction cosines of the picture axes.
-                # The picture x-axis is (TXX,TXY,TXZ) and y-axis is (TYX,TYY,TYZ).
-                # If both axes have no Z component the picture lies in the XY plane, etc.
-                if abs(TXZ) < tol and abs(TYZ) < tol:
-                    plane = "xy"
-                elif abs(TXY) < tol and abs(TYY) < tol:
-                    plane = "xz"
-                elif abs(TXX) < tol and abs(TYX) < tol:
-                    plane = "yz"
-                else:
-                    plane = "arbitrary"
+                plane = "arbitrary"
 
             if args.verbose:
                 print(f"Plane == {plane}")
@@ -130,11 +125,11 @@ def main():
                     y3d = [Y0 + xi*TXY + yi*TYY for xi, yi in zip(x_local, y_local)]
                     z3d = [Z0 + xi*TXZ + yi*TYZ for xi, yi in zip(x_local, y_local)]
 
-                    if plane in ("xy", "yx"):
+                    if plane == "xy":
                         x, y = x3d, y3d
-                    elif plane in ("xz", "zx"):
+                    elif plane == "xz":
                         x, y = x3d, z3d
-                    elif plane in ("yz", "zy"):
+                    elif plane == "yz":
                         x, y = y3d, z3d
                     elif plane == "arbitrary":
                         x, y = list(x_local), list(y_local)
