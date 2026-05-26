@@ -82,7 +82,7 @@ class Zone:
 
                 # print > 0.5 uSv/h in stderr:
                 if m.val > 0.5 and not self.title.strip().startswith("One"):
-                        print(f"Above 0.5 uSv/h: {self.title}: {m}", file=sys.stderr)
+                        print(f"\033[31m Above 0.5 µSv/h: \033[0m {self.title}: {m}", file=sys.stderr)
 
                 vals.append(m.val)
                 errs.append(m.relerr)
