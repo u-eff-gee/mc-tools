@@ -9,7 +9,7 @@ rantest004:
 run: rantest004
 
 test.root:
-	fluka2root -f test.inp
+	fluka2root -f -keep test.inp
 
 convert: run test.root
 
