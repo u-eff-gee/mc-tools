@@ -9,7 +9,6 @@ import struct
 from dataclasses import dataclass
 
 from . import bmath
-from .log import say
 from .recordio import read_record, skip_record
 
 try:
@@ -112,12 +111,12 @@ class FlukaBinaryFile:
         return payload
 
     def describe_header(self) -> None:
-        say("File   : ", self.filename)
-        say("Title  : ", self.title)
-        say("Time   : ", self.time)
-        say("Weight : ", self.weight)
-        say("NCase  : ", self.n_cases)
-        say("NBatch : ", self.n_batches)
+        print("File   : ", self.filename)
+        print("Title  : ", self.title)
+        print("Time   : ", self.time)
+        print("Weight : ", self.weight)
+        print("NCase  : ", self.n_cases)
+        print("NBatch : ", self.n_batches)
 
 
 class ResidualNucleiFile(FlukaBinaryFile):
@@ -261,14 +260,14 @@ class ResidualNucleiFile(FlukaBinaryFile):
             self.describe_header()
             return
         det = self.detectors[index]
-        say("Bin    : ", det.index)
-        say("Title  : ", det.name)
-        say("Type   : ", det.type)
-        say("Region : ", det.region)
-        say("Volume : ", det.volume)
-        say("Mhigh  : ", det.mhigh)
-        say("Zhigh  : ", det.zhigh)
-        say("NMZmin : ", det.nmzmin)
+        print("Bin    : ", det.index)
+        print("Title  : ", det.name)
+        print("Type   : ", det.type)
+        print("Region : ", det.region)
+        print("Volume : ", det.volume)
+        print("Mhigh  : ", det.mhigh)
+        print("Zhigh  : ", det.zhigh)
+        print("NMZmin : ", det.nmzmin)
 
 
 class UsrbdxFile(FlukaBinaryFile):
@@ -365,21 +364,21 @@ class UsrbdxFile(FlukaBinaryFile):
             self.describe_header()
             return
         det = self.detectors[index]
-        say("BDX    : ", det.index)
-        say("Title  : ", det.name)
-        say("Type   : ", det.type)
-        say("Dist   : ", det.dist)
-        say("Reg1   : ", det.reg1)
-        say("Reg2   : ", det.reg2)
-        say("Area   : ", det.area)
-        say("2way   : ", det.twoway)
-        say("Fluence: ", det.fluence)
-        say("LowNeu : ", det.lowneu)
-        say("Energy : [", det.elow, "..", det.ehigh, "] ne=", det.ne, "de=", det.de)
+        print("BDX    : ", det.index)
+        print("Title  : ", det.name)
+        print("Type   : ", det.type)
+        print("Dist   : ", det.dist)
+        print("Reg1   : ", det.reg1)
+        print("Reg2   : ", det.reg2)
+        print("Area   : ", det.area)
+        print("2way   : ", det.twoway)
+        print("Fluence: ", det.fluence)
+        print("LowNeu : ", det.lowneu)
+        print("Energy : [", det.elow, "..", det.ehigh, "] ne=", det.ne, "de=", det.de)
         if det.lowneu:
-            say("LOWNeut : [", det.egroup[-1], "..", det.egroup[0], "] ne=", det.ngroup)
-        say("Angle  : [", det.alow, "..", det.ahigh, "] na=", det.na, "da=", det.da)
-        say("Total  : ", det.total, "+/-", det.total_error)
+            print("LOWNeut : [", det.egroup[-1], "..", det.egroup[0], "] ne=", det.ngroup)
+        print("Angle  : [", det.alow, "..", det.ahigh, "] na=", det.na, "da=", det.da)
+        print("Total  : ", det.total, "+/-", det.total_error)
 
 
 class UsrbinFile(FlukaBinaryFile):
@@ -482,17 +481,17 @@ class UsrbinFile(FlukaBinaryFile):
             self.describe_header()
             return
         det = self.detectors[index]
-        say("Bin    : ", det.index)
-        say("Title  : ", det.name)
-        say("Type   : ", det.type)
-        say("Score  : ", det.score)
-        say("X      : [", det.xlow, "-", det.xhigh, "] x", det.nx, "dx=", det.dx)
-        say("Y      : [", det.ylow, "-", det.yhigh, "] x", det.ny, "dy=", det.dy)
-        say("Z      : [", det.zlow, "-", det.zhigh, "] x", det.nz, "dz=", det.dz)
-        say("L      : ", det.lntzer)
-        say("bk     : ", det.bk)
-        say("b2     : ", det.b2)
-        say("tc     : ", det.tc)
+        print("Bin    : ", det.index)
+        print("Title  : ", det.name)
+        print("Type   : ", det.type)
+        print("Score  : ", det.score)
+        print("X      : [", det.xlow, "-", det.xhigh, "] x", det.nx, "dx=", det.dx)
+        print("Y      : [", det.ylow, "-", det.yhigh, "] x", det.ny, "dy=", det.dy)
+        print("Z      : [", det.zlow, "-", det.zhigh, "] x", det.nz, "dz=", det.dz)
+        print("L      : ", det.lntzer)
+        print("bk     : ", det.bk)
+        print("b2     : ", det.b2)
+        print("tc     : ", det.tc)
 
 
 class MgdrawFile:
@@ -661,4 +660,3 @@ class TablisReader:
                     block += 1
                 half = 0
         handle.close()
-
