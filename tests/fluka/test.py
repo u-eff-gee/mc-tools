@@ -4,6 +4,7 @@
 #
 
 import re, sys
+from mctools.fluka.usrbintxt2root import convert as usrbintxt2root
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
@@ -238,6 +239,56 @@ def usrbin(rootfname, hname, tabfname):
 
     """
     print("usrbin:\t", end="", flush=True)
+
+    tmp_root = tabfname + '.root'
+    usrbintxt2root(tabfname, tmp_root, verbose=False)
+
+    rootf = ROOT.TFile(rootfname)
+    h_ref = rootf.Get(hname)
+    assert h_ref, f"{hname} not found in {rootfname}"
+
+    convf = ROOT.TFile(tmp_root)
+    h_conv = convf.Get(hname)
+    assert h_conv, f"{hname} not found in {tmp_root}"
+
+    passed = True
+    nx = h_ref.GetNbinsX()
+    ny = h_ref.GetNbinsY()
+    nz = h_ref.GetNbinsZ()
+
+    if not compare(h_ref.GetXaxis().GetXmin(), h_conv.GetXaxis().GetXmin(), "Xmin") or \
+       not compare(h_ref.GetXaxis().GetXmax(), h_conv.GetXaxis().GetXmax(), "Xmax") or \
+       not compare(h_ref.GetYaxis().GetXmin(), h_conv.GetYaxis().GetXmin(), "Ymin") or \
+       not compare(h_ref.GetYaxis().GetXmax(), h_conv.GetYaxis().GetXmax(), "Ymax") or \
+       not compare(h_ref.GetZaxis().GetXmin(), h_conv.GetZaxis().GetXmin(), "Zmin") or \
+       not compare(h_ref.GetZaxis().GetXmax(), h_conv.GetZaxis().GetXmax(), "Zmax"):
+        passed = False
+
+    # relPrec=1e-4: text format e11.4 gives 5 significant figures
+    if passed:
+        for iz in range(1, nz + 1):
+            for iy in range(1, ny + 1):
+                for ix in range(1, nx + 1):
+                    val_ref  = h_ref.GetBinContent(ix, iy, iz)
+                    val_conv = h_conv.GetBinContent(ix, iy, iz)
+                    err_ref  = h_ref.GetBinError(ix, iy, iz)
+                    err_conv = h_conv.GetBinError(ix, iy, iz)
+                    if not compare(val_ref, val_conv,
+                                   f"bin({ix},{iy},{iz}) content", relPrec=1e-4) or \
+                       not compare(err_ref, err_conv,
+                                   f"bin({ix},{iy},{iz}) error",   relPrec=1e-4):
+                        passed = False
+                        break
+                if not passed:
+                    break
+            if not passed:
+                break
+
+    rootf.Close()
+    convf.Close()
+
+    print(hname, "test passed" if passed else "test failed", file=sys.stderr)
+    return passed
 
 
 def usrbdx(rootfname, hname, tabfname):
