@@ -12,8 +12,8 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 logger = logging.getLogger(__name__)
 
-def getType(n):
-    """ Decrypt what(1) of USRYIELD """
+def decode_what1(n):
+    """Decode WHAT(1) of a USRYIELD card."""
     for ie in range(-38,39):
         if ie == 0:
             continue
@@ -24,10 +24,8 @@ def getType(n):
     print(f"usysuw2root: what(1) == {n} undefined", file=sys.stderr)
     sys.exit(1)
 
-def getDistTitle(i, var1, var2):
-    """
-    Parse WHAT(6) and return the distribution title
-    """
+def distribution_title(i, var1, var2):
+    """Return the formatted WHAT(6) distribution title."""
 
     x1 = var1[2] if len(var1) == 3 else "x_{1}"
     x2 = var2[2] if len(var2) == 3 else "x_{2}"
@@ -81,7 +79,7 @@ def getDistTitle(i, var1, var2):
      case _:
       return "unknown title (not implemented)"
 
-def getVarTitle(i):
+def variable_title(i):
     match abs(i):
      case 1:
       return ("Kinetic energy", "GeV", "E")
@@ -158,11 +156,10 @@ def getVarTitle(i):
      case _:
       return (f"Unknown: {i=}", "")
 
-class USYSUW(FlukaBinaryFile):
-    """
-    Read the usysuw binary output (USRYIELD average)
-    """
-    def setVerbose(self, val):
+class UsryieldReader(FlukaBinaryFile):
+    """Read the USRYIELD binary output."""
+
+    def set_verbose(self, val):
         self.verbose = val
 
     def describe_detector(self, i):
@@ -180,23 +177,23 @@ class USYSUW(FlukaBinaryFile):
         print(f" second variable min/max: {det.AYLLOW} {det.AYLHGH} rad")
 
     def energy_bins(self, det):
-        """ Return lin or log energy bins depending on the value of i """
-        ie, ia, i4 = getType(det.ITUSYL)
+        """Return linear or logarithmic energy bins."""
+        ie, ia, i4 = decode_what1(det.ITUSYL)
         if ie < 0:
             return getLogBins(det.NEYLBN, det.EYLLOW, det.EYLHGH)
         else:
             return getLinBins(det.NEYLBN, det.EYLLOW, det.EYLHGH)
 
     def make_histogram(self, det):
-        """ Create histogram for the given detector """
+        """Create the histogram for the given detector."""
         if det.NEYLBN == 0:
             logger.warning(f"Not saving detector {det.name} into ROOT file since it has 0 energy bins: {det.elow} < E < {det.ehigh}")
             logger.warning("         This happens for neutron-contributing estimators if max scoring energy is below groupwise max energy, 20 MeV.")
             return None
 
-        ie, ia, i4 = getType(det.ITUSYL)
-        var1 = getVarTitle(ie)
-        var2 = getVarTitle(ia)
+        ie, ia, i4 = decode_what1(det.ITUSYL)
+        var1 = variable_title(ie)
+        var2 = variable_title(ia)
 
         title = fluka.particle.get(det.IDUSYL, "undefined")
         title += " #diamond "
@@ -213,7 +210,7 @@ class USYSUW(FlukaBinaryFile):
         title += ";%s [%s]" % (var1[0:2])
 
         # y-axis
-        title += ";" + getDistTitle(det.IXUSYL, var1, var2)
+        title += ";" + distribution_title(det.IXUSYL, var1, var2)
 
 
         return ROOT.TH1F(det.TITUYL, title, det.NEYLBN, self.energy_bins(det))
@@ -225,7 +222,7 @@ class USYSUW(FlukaBinaryFile):
         data = read_record(f)
 
         if data is None:
-            logger.error("Invalid usrysuw file")
+            logger.error("Invalid USRYIELD file")
             sys.exit(1)
 
         size = len(data)
@@ -244,13 +241,13 @@ class USYSUW(FlukaBinaryFile):
             size = len(data)
             logger.debug(f"read while True: \t{size=}")
             if size == 70: # new detector
-                logger.debug(f" Reading the header...\t{size=}")
+                logger.debug(f"Reading the header...\t{size=}")
                 header = struct.unpack("=i10s3i2i2fi2fif2f", data)
                 det = DetectorRecord()
                 det.NYL = header[0]
-                det.TITUYL = header[1].decode('utf-8').strip() # detector title (sdum)
-                det.ITUSYL = header[2] # what(1)
-                det.IXUSYL = header[3] # what(6)
+                det.TITUYL = header[1].decode('utf-8').strip() # detector title
+                det.ITUSYL = header[2] # WHAT(1)
+                det.IXUSYL = header[3] # WHAT(6)
                 det.IDUSYL = header[4]
                 det.NR1UYL = header[5]
                 det.NR2UYL = header[6]
@@ -258,7 +255,7 @@ class USYSUW(FlukaBinaryFile):
                 det.SGUSYL = header[8]
                 det.LLNUYL = header[9]
                 if det.LLNUYL == 1:
-                    logger.error(f"{det.TITUYL}: No groupwise low energy neutron scoring is implemented yet. Adjust i4 in WHAT(1) in the USRYIELD cards.")
+                    logger.error(f"{det.TITUYL}: No groupwise low-energy neutron scoring is implemented yet. Adjust i4 in WHAT(1) in the USRYIELD cards.")
                     sys.exit(1)
                 det.EYLLOW = header[10]
                 det.EYLHGH = header[11]
@@ -267,40 +264,13 @@ class USYSUW(FlukaBinaryFile):
                 det.AYLLOW = header[14]
                 det.AYLHGH = header[15]
                 self.detectors.append(det)
-            elif size == 14: # and data.decode('utf8')[:10] == "STATISTICS":
+            elif size == 14:  # and data.decode('utf8')[:10] == "STATISTICS":
                 self.stats_offset = f.tell()
                 break
-                # logger.debug(f" Reading STATISTICS...\t{size=}")
-                # for det in self.detector:
-                #     data = unpack_floats(read_record(f))
-                #     logger.debug(f"  detector {det.NYL}")
-                    # det.total = data[0]
-                    # det.totalerror = data[1]
-                    # print("total:",det.total, det.totalerror)
-                    #                    for j in range(6):
-                    #                        fortran.skip(f)
-            # elif size == det.NEYLBN*4:
-            #     logger.debug(f" Reading the data block\t{size=}")
-            # elif size == 8:
-            #     det.total, det.totalerror = struct.unpack("=2f", data)
-            #     logger.debug(f"{det.total=} {det.totalerror=}")
-            # else:
-            #     logger.debug(f"else {size=}")
-            #     if det.LLNUYL: # low energy neutrons
-            #         logger.debug(f"\t low energy neutrons")
-            #         det.ngroup = struct.unpack("=i",data[:4])[0]
-            #         det.egroup = struct.unpack("=%df"%(det.ngroup+1), data[4:])
-            #         print(det.ngroup)
-            #     else:
-            #         det.ngroup = 0
-            #         det.egroup = ()
-                # size  = (det.ngroup+det.ne) * 4
-                # if size != fortran.skip(f):
-                #     raise IOError("Invalid USRTRACK file")
-                # f.close()
+        f.close()
 
-    def read_statistics(self, i, lowneu):# almost the same as ustsuw2root. TODO: use a common base class
-        """ Read detector # det statistical data """
+    def read_statistics(self, i, lowneu):  # almost the same as ustsuw2root; kept for the distinct wire format
+        """Read detector statistical data."""
         if self.stats_offset < 0:
             logger.warning(f"Negative statpos: {self.stats_offset=}")
             return None
@@ -315,10 +285,8 @@ class USYSUW(FlukaBinaryFile):
 
         return data
 
-    def read_detector_data(self, i, lowneu): # almost the same as ustsuw2root. TODO: use a common base class
-        """Read detector det data structure
-
-        """
+    def read_detector_data(self, i, lowneu):  # almost the same as ustsuw2root; kept for the distinct wire format
+        """Read detector data."""
         with open(self.filename,"rb") as f:
             skip_record(f) # Skip the header read by super()
             for _ in range(2*i+2):
@@ -329,11 +297,11 @@ class USYSUW(FlukaBinaryFile):
 
 
 def main():
-    """ Converts usysuw output into a ROOT TH2F histogram """
+    """Convert USRYIELD binary output into ROOT histograms."""
 
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
-    parser.add_argument('usryield', type=str, help='usysuw binary output')
+    parser.add_argument('usryield', type=str, help='USRYIELD binary output')
     parser.add_argument('root', type=str, nargs='?', help='output ROOT file name', default="")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='print what is being done')
 
@@ -362,38 +330,40 @@ def main():
 
     logger.debug(rootFileName)
 
-    b = USYSUW()
-    b.setVerbose(args.verbose)
-    b.read_header(args.usryield) # data file closed here
+    reader = UsryieldReader()
+    reader.set_verbose(args.verbose)
+    reader.read_header(args.usryield) # data file closed here
 
-    ND = len(b.detector)
+    num_detectors = len(reader.detectors)
 
     if args.verbose:
-        b.describe_header()
-        logger.info("%s %d %s found:" % ('*'*20, ND, "estimator" if ND==1 else "estimators"))
-        for i in range(ND):
-            b.describe_detector(i)
+        reader.describe_header()
+        logger.info("%s %d %s found:" % ('*'*20, num_detectors, "estimator" if num_detectors==1 else "estimators"))
+        for i in range(num_detectors):
+            reader.describe_detector(i)
             print("")
 
-    fout = ROOT.TFile(rootFileName, "recreate")
-    for i in range(ND):
-        det = b.detector[i]
-        val = unpack_floats(b.read_detector_data(i,det.LLNUYL))
-        logger.debug(f"{val=}")
-        err = unpack_floats(b.read_statistics(i,det.LLNUYL))
-        logger.debug(f"{err=}")
+    root_file = ROOT.TFile(rootFileName, "recreate")
+    for i in range(num_detectors):
+        det = reader.detectors[i]
+        values = unpack_floats(reader.read_detector_data(i,det.LLNUYL))
+        logger.debug(f"{values=}")
+        errors = unpack_floats(reader.read_statistics(i,det.LLNUYL))
+        logger.debug(f"{errors=}")
 
-        assert len(val) == len(err), "val and err length are different: %d %d" % (len(val), len(err))
+        assert len(values) == len(errors), "val and err length are different: %d %d" % (len(values), len(errors))
 
-        h = b.make_histogram(det)
+        h = reader.make_histogram(det)
 
         if h:
             n = h.GetNbinsX()
             for i in range(n):
-                h.SetBinContent(i+1, val[i])
-                h.SetBinError(i+1, err[n-i-1]*val[i])
-            h.SetEntries(b.weight)
+                h.SetBinContent(i+1, values[i])
+                h.SetBinError(i+1, errors[n-i-1]*values[i])
+            h.SetEntries(reader.weight)
             h.Write()
+
+    root_file.Close()
 
 if __name__=="__main__":
     sys.exit(main())

@@ -8,8 +8,8 @@ from mctools.fluka.io.readers import ResidualNucleiFile, unpack_floats
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-def getType(det):
-    """Return printable type of products to be scored
+def describe_detector_type(det):
+    """Return a printable RESNUCLEi product category.
 
     """
     if int(det.type) == 1:
@@ -21,18 +21,18 @@ def getType(det):
     else:
         return "unknown RESNUCLEI detector type"
 
-def graph(name, title, val, err):
-    n = len(val)
-    assert n == len(err), "graph: length of val and err differ"
+def make_graph(name, title, values, errors):
+    n = len(values)
+    assert n == len(errors), "graph: length of values and errors differ"
 
-    N = np.count_nonzero(val) # number of points in the graph
+    num_points = np.count_nonzero(values)  # number of points in the graph
 
-    ge = ROOT.TGraphErrors(N)
+    ge = ROOT.TGraphErrors(num_points)
     j = 0 # ge point index
     for i in range(n):
         x = i+1
-        y = val[i]
-        ey = err[i]*val[i]
+        y = values[i]
+        ey = errors[i]*values[i]
         if y>0.0:
             ge.SetPoint(j, x, y)
             ge.SetPointError(j, 0.0, ey)
@@ -42,49 +42,49 @@ def graph(name, title, val, err):
 
     return ge
 
-def graphA(det, A, errA):
-    return graph(det.name+"A", getType(det)+": Isotope yield as a function of mass number;A;Isotope yield [nuclei/cm^{3}/primary]", A, errA)
+def make_mass_graph(det, A, errA):
+    return make_graph(det.name+"A", describe_detector_type(det)+": Isotope yield as a function of mass number;A;Isotope yield [nuclei/cm^{3}/primary]", A, errA)
 
-def graphZ(det, Z, errZ):
-    return graph(det.name+"Z", getType(det)+": Isotope yield as a function of atomic number;Z;Isotope yield [nuclei/cm^{3}/primary]", Z, errZ)
+def make_atomic_graph(det, Z, errZ):
+    return make_graph(det.name+"Z", describe_detector_type(det)+": Isotope yield as a function of atomic number;Z;Isotope yield [nuclei/cm^{3}/primary]", Z, errZ)
 
-def getRegion(det):
-    """ Return printable scoring region number or name """
+def describe_scoring_region(det):
+    """Return the scoring region label."""
     if det.region == -1:
         return "all regions"
     else:
         return "region = %d" % det.region
 
-def hist(det):
-    """Create histogram for the given detector
+def make_histogram(det):
+    """Create the histogram for a RESNUCLEi detector.
 
     """
 
-    title = "%s (excluding isomers): %s, volume = %g cm^{3};Z;A;Isotope yield [nuclei/cm^{3}/primary]" % (getType(det), getRegion(det), det.volume)
+    title = "%s (excluding isomers): %s, volume = %g cm^{3};Z;A;Isotope yield [nuclei/cm^{3}/primary]" % (describe_detector_type(det), describe_scoring_region(det), det.volume)
 
     nz = det.zhigh-1
     na = det.mhigh+det.nmzmin+det.zhigh
 
     return ROOT.TH2F(det.name, title, nz, 1, nz+1, na, 1, na+1)
 
-def histIso(det, val, err):
-    """Create TH1 with isomer data"""
-    n = len(val)
-    assert n == len(err), "histIso: different lengths of values and errors"
+def make_isomer_histogram(det, values, errors):
+    """Create the histogram for isomer yields."""
+    n = len(values)
+    assert n == len(errors), "make_isomer_histogram: different lengths of values and errors"
 
-    title = "Isomers of %s: %s, volume = %g cm^{3};bin number;Isomer yield [nuclei/cm^{3}/primary]" % (getType(det), getRegion(det), det.volume)
+    title = "Isomers of %s: %s, volume = %g cm^{3};bin number;Isomer yield [nuclei/cm^{3}/primary]" % (describe_detector_type(det), describe_scoring_region(det), det.volume)
 
     return ROOT.TH1F(det.name+"iso", title, n, 1, n+1)
 
 
 def main():
-    """Convert usrsuw output into a ROOT TH2F histogram
+    """Convert RESNUCLEi binary output into ROOT histograms.
 
     """
 
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
-    parser.add_argument('usrsuw', type=str, help='usrsuw binary output')
+    parser.add_argument('usrsuw', type=str, help='RESNUCLEi binary output')
     parser.add_argument('root', type=str, nargs='?', help='output ROOT file name', default="")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='print what is being done')
 
@@ -99,68 +99,68 @@ def main():
     else:
         rootFileName = args.root
 
-    b = ResidualNucleiFile()
-    b.read_header(args.usrsuw) # data file is closed here
+    reader = ResidualNucleiFile()
+    reader.read_header(args.usrsuw) # data file is closed here
 
-    ND = len(b.detectors)
+    num_detectors = len(reader.detectors)
 
     if args.verbose:
-        b.describe_header()
-        print("\n%s %d %s found:" % ('*'*20, ND, "estimator" if ND==1 else "estimators"))
-        for i in range(ND):
-            b.describe_detector(i)
+        reader.describe_header()
+        print("\n%s %d %s found:" % ('*'*20, num_detectors, "estimator" if num_detectors==1 else "estimators"))
+        for i in range(num_detectors):
+            reader.describe_detector(i)
             print("")
 
-    fout = ROOT.TFile(rootFileName, "recreate")
-    for i in range(ND):
-        val = unpack_floats(b.read_detector_data(i))
-        stat = b.read_statistics(i)
-        total, A, errA, Z, errZ, err, isoErr = map(unpack_floats, stat)
+    root_file = ROOT.TFile(rootFileName, "recreate")
+    for i in range(num_detectors):
+        values = unpack_floats(reader.read_detector_data(i))
+        stat = reader.read_statistics(i)
+        total, A, errA, Z, errZ, errors, isoErr = map(unpack_floats, stat)
         # isoErr = errors for the isomer data
 
-#        print("isomers: ", b.isomer_count, i)
+#        print("isomers: ", reader.isomer_count, i)
 
-        det = b.detectors[i]
+        det = reader.detectors[i]
 #        print(det.nb, det.name, det.type, det.region, det.mhigh, det.zhigh, det.nmzmin)
 
-        if b.isomer_count:
-            iso = b.read_isomers(i)
+        if reader.isomer_count:
+            iso = reader.read_isomers(i)
             isoHead = iso[0]
             L = struct.unpack("=10xi", isoHead)
             assert L[0] == len(isoErr), "Isomers: different size of Data and Error arrays"
-            isoData = struct.unpack("=%df" % L[0], iso[1])
+            iso_data = struct.unpack("=%df" % L[0], iso[1])
 
-            hIso = histIso(det, isoData, isoErr)
+            hIso = make_isomer_histogram(det, iso_data, isoErr)
             for j in range(1,L[0]):
-                hIso.SetBinContent(j, isoData[j])
-                hIso.SetBinError(j, isoErr[j]*isoData[j])
+                hIso.SetBinContent(j, iso_data[j])
+                hIso.SetBinError(j, isoErr[j]*iso_data[j])
 
             # if det.name == "res126":
             #     print("L",L)
             #     print(len(isoData))
             #     print(i, len(isoErr))
 
-        h = hist(det)
+        h = make_histogram(det)
 
-        grA = graphA(det, A, errA)
-        grZ = graphZ(det, Z, errZ)
+        grA = make_mass_graph(det, A, errA)
+        grZ = make_atomic_graph(det, Z, errZ)
 
         for z in range(1,det.zhigh+1):
             for j in range(1,det.mhigh+1):
                 gbin = z-1+(j-1)*(det.zhigh)
-                if val[gbin]>0.0:
+                if values[gbin]>0.0:
                     # See the RDRESN program from the RESNUCLEi section of the Manual
                     a = j+det.nmzmin+2*z
-                    h.SetBinContent(z,a,val[gbin])
-                    h.SetBinError(z,a,err[gbin]*val[gbin])
+                    h.SetBinContent(z,a,values[gbin])
+                    h.SetBinError(z,a,errors[gbin]*values[gbin])
 
         h.Write()
-        if b.isomer_count:
+        if reader.isomer_count:
             hIso.Write()
         grA.Write()
         grZ.Write()
 
-    fout.Close()
+    root_file.Close()
 
 if __name__=="__main__":
     sys.exit(main())

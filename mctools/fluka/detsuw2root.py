@@ -8,12 +8,11 @@ from mctools.fluka.io.recordio import read_record
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-class DETECT:
+class DetsuwReader:
     def __init__(self, fname):
-        self.f = open(fname, 'rb')
+        self.handle = open(fname, 'rb')
 
-        data = read_record(self.f)
-        size = len(data)
+        data = read_record(self.handle)
         self.runtit, self.runtim, self.wctot, self.nctot, self.mctot = struct.unpack("=80s32sf2i", data)
         self.runtit = self.runtit.decode('utf-8').strip()
         self.runtim = self.runtim.decode('utf-8').strip()
@@ -21,7 +20,7 @@ class DETECT:
         self.nps = self.nctot + 1.0e9*self.mctot
 
     def __del__(self):
-        self.f.close()
+        self.handle.close()
 
     def reset(self):
         self.chname = None
@@ -34,15 +33,13 @@ class DETECT:
     def read(self):
         self.reset()
 
-        data = read_record(self.f)
+        data = read_record(self.handle)
         if data is None:
             return False
-        size = len(data)
         ndet,self.chname,self.nbin,emin,ebin,self.ecut = struct.unpack("=i10si3f", data)
         self.chname = self.chname.decode('utf-8').strip()
 
-        data = read_record(self.f)
-        size = len(data)
+        data = read_record(self.handle)
         iv = struct.unpack("=%ii" % self.nbin, data)
 
         for i in range(self.nbin+1):
@@ -57,7 +54,7 @@ class DETECT:
         return True
 
 def main():
-    """Convert detsuw output into a ROOT TH2F histogram
+    """Convert DETECT binary output into a ROOT TH1F histogram.
 
     """
 
@@ -78,17 +75,17 @@ def main():
     else:
         rootFileName = args.root
 
-    fout = ROOT.TFile(rootFileName, "recreate")
+    root_file = ROOT.TFile(rootFileName, "recreate")
 
-    d = DETECT(args.detsuw)
-    while d.read():
-        h = ROOT.TH1F(d.chname, "nps = %g #bullet E_{cut} = %g GeV;Energy deposition [GeV];Counts/primary" % (d.nps, d.ecut), d.nbin, np.array(d.ebins))
-        for i in range(d.nbin):
-            h.SetBinContent(i+1, d.val[i])
-            h.SetBinError(i+1, d.err[i])
-        h.Write()
+    reader = DetsuwReader(args.detsuw)
+    while reader.read():
+        hist = ROOT.TH1F(reader.chname, "nps = %g #bullet E_{cut} = %g GeV;Energy deposition [GeV];Counts/primary" % (reader.nps, reader.ecut), reader.nbin, np.array(reader.ebins))
+        for i in range(reader.nbin):
+            hist.SetBinContent(i+1, reader.val[i])
+            hist.SetBinError(i+1, reader.err[i])
+        hist.Write()
 
-    fout.Close()
+    root_file.Close()
 
 
 if __name__=="__main__":

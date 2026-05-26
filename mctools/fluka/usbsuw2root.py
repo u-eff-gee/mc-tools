@@ -8,13 +8,13 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 def main():
-    """Convert usbsuw output into a ROOT TH2F histogram
+    """Convert USRBIN binary output into a ROOT TH3F histogram.
 
     """
 
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
-    parser.add_argument('usrbin', type=str, help='usrxxx binary output (produced by usbsuw)')
+    parser.add_argument('usrbin', type=str, help='USRBIN binary output produced by usbsuw')
     parser.add_argument('root', type=str, nargs='?', help='output ROOT file name', default="")
     parser.add_argument('-v', '--verbose', action='store_true', default=False, dest='verbose', help='Print some output')
 
@@ -29,23 +29,23 @@ def main():
     else:
         rootFileName = args.root
 
-    b = UsrbinFile()
-    b.read_header(args.usrbin)
+    reader = UsrbinFile()
+    reader.read_header(args.usrbin)
 
-    ND = len(b.detectors)
+    num_detectors = len(reader.detectors)
 
     if args.verbose:
-        b.describe_header()
-        print("\n%d tallies found:" % ND)
-        for i in range(ND):
-            b.describe_detector(i)
+        reader.describe_header()
+        print("\n%d tallies found:" % num_detectors)
+        for i in range(num_detectors):
+            reader.describe_detector(i)
             print("")
 
-    fout = ROOT.TFile(rootFileName, "recreate")
-    for i in range(ND):
-        val = unpack_floats(b.read_detector_data(i))
-        err = unpack_floats(b.read_statistics(i))
-        det = b.detectors[i]
+    root_file = ROOT.TFile(rootFileName, "recreate")
+    for i in range(num_detectors):
+        values = unpack_floats(reader.read_detector_data(i))
+        errors = unpack_floats(reader.read_statistics(i))
+        det = reader.detectors[i]
 
         title = fluka.particle.get(det.score, "unknown")
         dt = det.type % 10
@@ -74,12 +74,12 @@ def main():
             for j in range(det.ny):
                 for k in range(det.nz):
                     gbin = i + j * det.nx + k * det.nx * det.ny
-                    h.SetBinContent(i+1, j+1, k+1, val[gbin])
-                    h.SetBinError(  i+1, j+1, k+1, err[gbin]*val[gbin])
-        h.SetEntries(b.weight)
+                    h.SetBinContent(i+1, j+1, k+1, values[gbin])
+                    h.SetBinError(  i+1, j+1, k+1, errors[gbin]*values[gbin])
+        h.SetEntries(reader.weight)
         h.Write()
 
-    fout.Close()
+    root_file.Close()
 
 if __name__=="__main__":
     sys.exit(main())

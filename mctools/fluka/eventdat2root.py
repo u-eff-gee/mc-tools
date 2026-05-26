@@ -8,7 +8,7 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 
 def main():
-    """ Converts ustsuw output into a ROOT TH1F histogram """
+    """Convert EVENTDAT binary output into a ROOT TTree."""
 
     parser = argparse.ArgumentParser(description=main.__doc__,
                                      epilog="Homepage: https://github.com/kbat/mc-tools")
