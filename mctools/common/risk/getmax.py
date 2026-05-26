@@ -91,10 +91,9 @@ class Area:
 
         0m, 1m, Bulk, Duct, Max
         """
-        def __init__(self, name, title, hist, region, getHist=None):
+        def __init__(self, name, title, region, getHist=None):
                 self.name = name
                 self.title = title
-                self.hist = hist
                 self.zones = []
                 self.isVirtual = False # if true then just a collection of already existing zones for max calculation
                 self.region = region # containing region
@@ -139,7 +138,7 @@ class Area:
                 else: # use the specified zones only
                         if title is None:
                                 title = " * Maximum of the " + " ".join([t for t in zones]) + " zones"
-                        a = Area(name, title, self.hist, self)
+                        a = Area(name, title, self)
                         for name in zones:
                                 z = self.getZone(name)
                                 if z is None:
@@ -181,10 +180,9 @@ class Region:
 
         Inside, Klystron, AccessSide, Access, Roof, Outside, Max
         """
-        def __init__(self, name, title, hist, getHist=None):
+        def __init__(self, name, title, getHist=None):
                 self.name = name
                 self.title = title
-                self.hist = hist
                 self.area = {}
                 self._getHist = getHist
 
@@ -195,7 +193,7 @@ class Region:
 
         def addArea(self, name):
                 self.checkAreaName(name)
-                self.area[name] = Area(name, "", self.hist, self, getHist=self._getHist)
+                self.area[name] = Area(name, "", self, getHist=self._getHist)
 
         def getArea(self, name):
                 return self.area[name]
@@ -203,7 +201,7 @@ class Region:
         def addAreaMax(self, name="Max"):
                 areas = self.area.copy()
                 self.checkAreaName(name)
-                self.area[name] = Area(name, f"* Maximum over the whole {self.name} region", self.hist, self)
+                self.area[name] = Area(name, f"* Maximum over the whole {self.name} region", self)
                 self.area[name].isVirtual = True
                 for a in areas.values():
                         self.area[name].zones.append(a)
