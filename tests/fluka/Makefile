@@ -11,10 +11,15 @@ run: rantest004
 test.root:
 	fluka2root -f -keep test.inp
 
-convert: run test.root
+test.54.txt:
+	(echo test.54.usrbin; echo -n ""; echo test.54.txt)| $(FLUPRO)/flutil/usbrea
+
+usrbin: test.54.txt
+
+convert: run test.root usrbin
 
 test: convert
 	./test.py
 
 clean:
-	@rm -fv test00* rantest* test*usrbin test*usrbdx test*usrtrack test*resnuclei test*.lis test*.bnx test*.trk test*.bnn test*.rnc test*.dat test*.resnucle fort.* *.root draw.pdf
+	@rm -fv test00* rantest* test*usrbin test*usrbdx test*usrtrack test*resnuclei test*.lis test*.bnx test*.trk test*.bnn test*.rnc test*.dat test*.resnucle fort.* *.root draw.pdf test.54.txt
