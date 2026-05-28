@@ -251,7 +251,7 @@ class Angel:
 
         if self.histos.GetEntries():
             fout = TFile(self.fname_out, "recreate")
-            self.histos.Write()
+            fout.Write()
             fout.Close()
             self.return_value = 0
         else:
