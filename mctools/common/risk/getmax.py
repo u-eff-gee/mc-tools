@@ -195,6 +195,7 @@ class Region:
         def addArea(self, name):
                 self.checkAreaName(name)
                 self.area[name] = Area(name, "", self, getHist=self._getHist)
+                return self.area[name]
 
         def getArea(self, name):
                 return self.area[name]
