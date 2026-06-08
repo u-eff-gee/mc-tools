@@ -250,7 +250,7 @@ class Scenario:
 
 class Configuration:
         """ Configuration - beam loss config (1A, 2A, 2BA, 2BB etc)"""
-        def __init__(self, name, rootfname=None, hname="rghmesh", scalefname="scale.txt"):
+        def __init__(self, name, rootfname=None, scalefname="scale.txt"):
                 self.name = name
                 self.regions = []
 
