@@ -51,8 +51,8 @@ class Zone:
                                 if abs(lo - hi) < eps:
                                         lo, hi = lo - eps, hi + eps
                                 axis.SetRangeUser(lo, hi)
-                val = self.hist.GetMaximum()
                 b = self.hist.GetMaximumBin()
+                val = self.hist.GetBinContent(b)
                 err = self.hist.GetBinError(b)
 
                 for axis in (self.hist.GetXaxis(), self.hist.GetYaxis(), self.hist.GetZaxis()):
