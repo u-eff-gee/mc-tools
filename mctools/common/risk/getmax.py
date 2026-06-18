@@ -1,3 +1,4 @@
+import copy
 import ctypes
 from functools import cached_property
 from pathlib import Path
@@ -171,7 +172,7 @@ class Area:
         add already-defined zone into the zone list
         newName must be defined if a zone with z.name already exists
         """
-        if newName != None:
+        if newName is not None:
             new_zone = copy.copy(z)
             new_zone.name = newName
         self.checkZoneName(new_zone.name)
