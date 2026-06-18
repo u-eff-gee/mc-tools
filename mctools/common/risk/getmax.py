@@ -1,5 +1,5 @@
 import ctypes
-from functools import lru_cache
+from functools import cached_property
 from pathlib import Path
 import sys
 
@@ -58,7 +58,7 @@ class Zone:
         self.area = area  # container area
         self.value = self.calculate()
 
-    @lru_cache(maxsize=None)
+    @cached_property
     def calculate(self):
         eps = 1e-3
         for axis, lo, hi in (
