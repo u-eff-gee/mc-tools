@@ -4,6 +4,7 @@ from functools import cached_property
 from io import StringIO
 from pathlib import Path
 import sys
+import warnings
 
 import ROOT
 
@@ -15,12 +16,17 @@ errs = []
 
 
 class Value:
-    def __init__(self, val, err, bin_index):
+    def __init__(self, val, err, bin_index, threshold=1.0e-20):
         self.val = val
         self.err = err
         self.relerr = 100.0  # \percent
-        if val >= 1.0e-20:
+        if val >= threshold:
             self.relerr = 100.0 * err / val
+        else:
+            warnings.warn(
+                f"Value smaller than the user-defined threshold of {threshold}"
+                "encountered. Arbitrarily setting its relative uncertainty to 100%."
+            )
         self.bin_index = bin_index
 
     def __gt__(self, other):
@@ -497,4 +503,4 @@ def printRate(confnames, root="."):
             print("    }{}%", file=buffer)
         print("    }{}%", file=buffer)
     print("}%", file=buffer)
-    print(buffer.getvalue(),end="")
+    print(buffer.getvalue(), end="")
