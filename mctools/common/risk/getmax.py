@@ -13,13 +13,13 @@ errs = []
 
 
 class Value:
-    def __init__(self, val, err, bin):
+    def __init__(self, val, err, bin_index):
         self.val = val
         self.err = err
         self.relerr = 100.0  # \percent
         if val >= 1.0e-20:
             self.relerr = 100.0 * err / val
-        self.bin = bin
+        self.bin_index = bin_index
 
     def __gt__(self, other):
         if isinstance(other, Value):
@@ -91,8 +91,7 @@ class Zone:
     def Print(self):
         m = self.getValue()
         i, j, k = ctypes.c_int(0), ctypes.c_int(0), ctypes.c_int(0)
-        b = m.bin
-        self.hist.GetBinXYZ(b, i, j, k)
+        self.hist.GetBinXYZ(m.bin_index, i, j, k)
         x = self.hist.GetXaxis().GetBinCenter(i.value)
         y = self.hist.GetYaxis().GetBinCenter(j.value)
         z = self.hist.GetZaxis().GetBinCenter(k.value)
