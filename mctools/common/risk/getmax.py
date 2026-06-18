@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 import copy
 import ctypes
 from functools import cached_property
@@ -308,9 +309,7 @@ class Scenario:
         print(f"{self.name}.{config}.{region}.{area}.{zone}", val)
 
 
-class Configuration:
-    """Configuration - beam loss config (1A, 2A, 2BA, 2BB etc)"""
-
+class Configuration(ABC):
     def __init__(self, name, rootfname=None, scalefname="scale.txt"):
         self.name = name
         self.regions = []
@@ -322,6 +321,11 @@ class Configuration:
 
         self._hists = {}
         self._rootfile = ROOT.TFile(rootfname)
+
+        self.evaluate()
+
+    @abstractmethod
+    def evaluate(self): ...
 
     def getScale(self, fname):
         with open(fname, encoding="utf-8") as f:
