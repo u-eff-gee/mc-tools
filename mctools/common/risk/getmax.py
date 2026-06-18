@@ -5,6 +5,7 @@ from functools import cached_property
 from io import StringIO
 from pathlib import Path
 import sys
+from typing import Type
 import warnings
 
 import ROOT
@@ -395,7 +396,7 @@ def createMaxConfiguration(s):
                         s.setValue(cmax.name, r.name, a, z.name, v)
 
 
-def printRate(confnames, root="."):
+def printRate(confnames, configuration: Type[Configuration], root="."):
     path = Path(root)
 
     all_confnames = list(confnames) + ["Max"]
@@ -448,7 +449,7 @@ def printRate(confnames, root="."):
         for name in confnames:
             rootfname = f"{folder}/{name}.root"
             scalefname = f"{folder}/scale.txt"
-            c = Configuration(name=name, rootfname=rootfname, scalefname=scalefname)
+            c = configuration(name=name, rootfname=rootfname, scalefname=scalefname)
             s.addConfig(c)
 
         createMaxConfiguration(s)
