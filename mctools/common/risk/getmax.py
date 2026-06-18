@@ -57,10 +57,9 @@ class Zone:
         self.zmin, self.zmax = zmin, zmax
         self.hist = hist
         self.area = area  # container area
-        self.value = self.calculate()
 
     @cached_property
-    def calculate(self):
+    def value(self):
         eps = 1e-3
         for axis, lo, hi in (
             (self.hist.GetXaxis(), self.xmin, self.xmax),
@@ -184,19 +183,19 @@ class Area:
             if title is None:
                 title = f" * Maximum over the whole {self.region.name}.{self.name} area"
             return self.addZoneMax(name, zones, title)
-        else:  # use the specified zones only
-            if title is None:
-                title = " * Maximum of the " + " ".join([t for t in zones]) + " zones"
-            a = Area(name, title, self)
-            for name in zones:
-                z = self.getZone(name)
-                if z is None:
-                    print(f"Not found: {name}", file=sys.stderr)
-                    sys.exit(1)
-                a.zones.append(z)
-            self.zones.append(a)
-            a.isVirtual = True
-            return a
+        # use the specified zones only
+        if title is None:
+            title = " * Maximum of the " + " ".join([t for t in zones]) + " zones"
+        a = Area(name, title, self)
+        for name in zones:
+            z = self.getZone(name)
+            if z is None:
+                print(f"Not found: {name}", file=sys.stderr)
+                sys.exit(1)
+            a.zones.append(z)
+        self.zones.append(a)
+        a.isVirtual = True
+        return a
 
     def getZone(self, name):
         """Return zone by its name"""
