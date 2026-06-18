@@ -417,7 +417,6 @@ def printRate(confnames, root="."):
     print("  % 5: zone")
 
     for folder in path.iterdir():
-        #                if not (folder.is_dir() and folder.name.startswith("conf-")):
         if not folder.name.startswith("conf-"):
             continue
         sname = folder.name.removeprefix("conf-")
@@ -427,7 +426,7 @@ def printRate(confnames, root="."):
         for name in confnames:
             rootfname = f"{folder}/{name}.root"
             scalefname = f"{folder}/scale.txt"
-            c = Config(name, rootfname, "rghmesh", scalefname)
+            c = Configuration(name=name, rootfname=rootfname,scalefname=scalefname)
             s.addConfig(c)
 
         createMaxConfiguration(s)
