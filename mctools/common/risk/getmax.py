@@ -185,12 +185,12 @@ class Area:
             return self.addZoneMax(name, zones, title)
         # use the specified zones only
         if title is None:
-            title = " * Maximum of the " + " ".join([t for t in zones]) + " zones"
+            title = " * Maximum of the " + " ".join(list(zones)) + " zones"
         a = Area(name, title, self)
-        for name in zones:
-            z = self.getZone(name)
+        for _name in zones:
+            z = self.getZone(_name)
             if z is None:
-                print(f"Not found: {name}", file=sys.stderr)
+                print(f"Not found: {_name}", file=sys.stderr)
                 sys.exit(1)
             a.zones.append(z)
         self.zones.append(a)
@@ -236,7 +236,7 @@ class Region:
         self._getHist = getHist
 
     def checkAreaName(self, name):
-        if name in [n for n in self.area.keys()]:
+        if name in self.area:
             print(f"Error: area {name} already exists", file=sys.stderr)
             sys.exit(1)
 
@@ -317,7 +317,7 @@ class Configuration:
         self._rootfile = ROOT.TFile(rootfname)
 
     def getScale(self, fname):
-        with open(fname) as f:
+        with open(fname,encoding="utf-8") as f:
             return float(f.readline())
 
     def getHist(self, hname):
