@@ -13,10 +13,6 @@ import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 
-vals = []
-errs = []
-
-
 class Value:
     def __init__(self, val, err, bin_index, threshold=1.0e-20):
         self.val = val
@@ -97,7 +93,7 @@ class Zone:
     def full_name(self):
         return f"{self.area.full_name}.{self.name}"
 
-    def Print(self):
+    def Print(self, vals: list[float] | None = None, errs: list[float] | None = None):
         m = self.getValue()
         i, j, k = ctypes.c_int(0), ctypes.c_int(0), ctypes.c_int(0)
         self.hist.GetBinXYZ(m.bin_index, i, j, k)
@@ -115,8 +111,10 @@ class Zone:
                 f"\033[31m Above 0.5 µSv/h: \033[0m {self.title}: {m}", file=sys.stderr
             )
 
-        vals.append(m.val)
-        errs.append(m.relerr)
+        if vals is not None:
+            vals.append(m.val)
+        if errs is not None:
+            errs.append(m.relerr)
 
 
 class Area:
@@ -224,12 +222,12 @@ class Area:
     def full_name(self):
         return f"{self.region.name}.{self.name}"
 
-    def Print(self):
+    def Print(self, vals: list[float] | None = None, errs: list[float] | None = None):
         if self.isVirtual:
             print(f"{self.title}:", self.getValue())
         else:
             for z in self.zones:
-                z.Print()
+                z.Print(vals=vals, errs=errs)
 
 
 class Region:
@@ -267,10 +265,10 @@ class Region:
         for a in areas.values():
             self.area[name].zones.append(a)
 
-    def Print(self):
+    def Print(self, vals: list[float] | None = None, errs: list[float] | None = None):
         print("#", self.title)
         for a in self.area.values():
-            a.Print()
+            a.Print(vals=vals, errs=errs)
 
 
 class Scenario:
