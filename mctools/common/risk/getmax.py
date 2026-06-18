@@ -124,6 +124,7 @@ class Area:
         self.isVirtual = False
         self.region = region  # containing region
         self._getHist = getHist
+        self.hist = None
 
     def checkZoneName(self, name):
         if name in [z.name for z in self.zones]:
