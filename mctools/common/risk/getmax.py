@@ -380,9 +380,18 @@ def getPrintedValue(val=None, err=None, value: Value | None = None):
     )
 
 
-def createMaxConfiguration(s):
+def createMaxConfiguration(s: Scenario):
     """Create 'Max' configuration for the given scenario"""
-    cmax = copy.deepcopy(s.getConfig("1A"))
+    try:
+        cmax = copy.deepcopy(s.getConfig("1A"))
+    except LookupError:
+        raise(
+            ValueError(
+                "The scenario must contain a configuration with "
+                "the name '1A' which will be used as a template for the 'Max' "
+                "scenario."
+            )
+        )
     cmax.name = "Max"
     s.addConfig(cmax)
 
