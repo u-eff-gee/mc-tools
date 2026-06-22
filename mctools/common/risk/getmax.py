@@ -422,6 +422,26 @@ def find_scenario_root_files(path: Path = Path.cwd()) -> list[str]:
     return root_files
 
 
+def initializeScenarios(
+    scenarios: list[Scenario],
+    configuration_names: list[str],
+    configuration: Type[Configuration],
+):
+
+    for scenario in scenarios:
+        for configuration_name in configuration_names:
+            scenario.addConfig(
+                configuration(
+                    name=configuration_name,
+                    # ROOT.TFile() incompatible with pathlib.Path
+                    rootfname=str(scenario.root_file_name),
+                    scalefname=scenario.scale_file_name,
+                )
+            )
+
+        createMaxConfiguration(s=scenario)
+
+
 def createLaTeXCommands(
     scenarios: list[Scenario],
     configuration_names: list[str],
@@ -439,19 +459,13 @@ def createLaTeXCommands(
         "  % 4: zone\n"
     ]
 
+    initializeScenarios(
+        scenarios=scenarios,
+        configuration_names=configuration_names,
+        configuration=configuration,
+    )
+
     for scenario in scenarios:
-        for configuration_name in configuration_names:
-            scenario.addConfig(
-                configuration(
-                    name=configuration_name,
-                    # ROOT.TFile() incompatible with pathlib.Path
-                    rootfname=str(scenario.root_file_name),
-                    scalefname=scenario.scale_file_name,
-                )
-            )
-
-        createMaxConfiguration(s=scenario)
-
         buffer.append(
             f"% Scenario: {scenario.name}\n"
             r"  \ifthenelse{\equal{#1}{"
