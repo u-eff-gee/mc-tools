@@ -440,14 +440,15 @@ def createLaTeXCommands(
     ]
 
     for scenario in scenarios:
-        scenario.addConfig(
-            configuration(
-                name="1A",
-                # ROOT.TFile() incompatible with pathlib.Path
-                rootfname=str(scenario.root_file_name),
-                scalefname=scenario.scale_file_name,
+        for configuration_name in configuration_names:
+            scenario.addConfig(
+                configuration(
+                    name=configuration_name,
+                    # ROOT.TFile() incompatible with pathlib.Path
+                    rootfname=str(scenario.root_file_name),
+                    scalefname=scenario.scale_file_name,
+                )
             )
-        )
 
         createMaxConfiguration(s=scenario)
 
