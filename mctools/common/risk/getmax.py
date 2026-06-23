@@ -386,7 +386,8 @@ class Case:
                     )
                 )
 
-            createMaxConfiguration(s=scenario)
+            if len(self.configuration_names) > 1:
+                createMaxConfiguration(s=scenario)
 
     def toLaTeX(
         self,
