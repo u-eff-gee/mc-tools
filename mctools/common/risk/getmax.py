@@ -481,18 +481,24 @@ class Case:
                         "}}{% "
                         f"{region.area[area].full_name}\n"
                     )
-                    for zone in region.area[area].zones:
+                    if area == "Max":
                         buffer.append(
-                            r"          \ifthenelse{\equal{#4}{"
-                            f"{zone.name}"
-                            "}}{"
-                            f"{getPrintedValue(value=zone.getValue())}"
-                            "}{"
-                            f"% {zone.full_name}\n"
+                            f"        {getPrintedValue(value=region.area[area].getValue())}"
+                            "\n"
                         )
-                    buffer.append(
-                        "        " + ("}" * len(region.area[area].zones)) + "\n"
-                    )
+                    else:
+                        for zone in region.area[area].zones:
+                            buffer.append(
+                                r"          \ifthenelse{\equal{#4}{"
+                                f"{zone.name}"
+                                "}}{"
+                                f"{getPrintedValue(value=zone.getValue())}"
+                                "}{"
+                                f"% {zone.full_name}\n"
+                            )
+                        buffer.append(
+                            "        " + ("}" * len(region.area[area].zones)) + "\n"
+                        )
                     buffer.append("      }{}%\n")
                 buffer.append("    }{}%\n")
             buffer.append("  }{}%\n")
@@ -525,6 +531,10 @@ class Case:
             r"\newcommand\print{%"
             "\n"
             r"  \scenario.\region.\area.\zone : \value"
+            "\n}\n"
+            r"\newcommand\printAreaMax{%"
+            "\n"
+            r"  \scenario.\region.Max : \value"
             "\n}\n\n"
             r"\begin{document}"
             "\n"
@@ -540,21 +550,32 @@ class Case:
                     buffer.append(r"\def\region{" f"{region.name}" "}\n")
                     for area in region.area.keys():
                         buffer.append(r"\def\area{" f"{region.area[area].name}" "}\n")
-                        for zone in region.area[area].zones:
-                            buffer.append(r"\def\zone{" f"{zone.name}" "}\n")
+                        if region.area[area].name == "Max":
                             buffer.append(
                                 r"\def\value{\rate{"
                                 f"{scenario.name}"
                                 "}{"
                                 f"{region.name}"
-                                "}{"
-                                f"{region.area[area].name}"
-                                "}{"
-                                f"{zone.name}"
-                                "}}\n"
-                                r"\print"
+                                "}{Max}{}}\n"
+                                r"\printAreaMax"
                                 "\n\n"
                             )
+                        else:
+                            for zone in region.area[area].zones:
+                                buffer.append(r"\def\zone{" f"{zone.name}" "}\n")
+                                buffer.append(
+                                    r"\def\value{\rate{"
+                                    f"{scenario.name}"
+                                    "}{"
+                                    f"{region.name}"
+                                    "}{"
+                                    f"{region.area[area].name}"
+                                    "}{"
+                                    f"{zone.name}"
+                                    "}}\n"
+                                    r"\print"
+                                    "\n\n"
+                                )
         buffer.append(r"\end{document}")
         return "".join(buffer)
 
