@@ -392,10 +392,8 @@ class Case:
         self.createMaxScenario()
 
     def createMaxScenario(self):
-        # self.scenarios.append(copy.deepcopy(self.scenarios[0]))
         max_scenario = copy.deepcopy(self.scenarios[0])
         max_scenario.name = "Max"
-        # max_scenario.addConfig(self.configuration(name="Max"))
 
         for scenario in self.scenarios:
             max_config_name = "Max"
@@ -409,10 +407,16 @@ class Case:
                 for area in region.area:
                     for zone in region.area[area].zones:
                         v = scenario.getValue(
-                            config=max_config_name, region=region.name, area=area, zone=zone.name
+                            config=max_config_name,
+                            region=region.name,
+                            area=area,
+                            zone=zone.name,
                         )
                         if v > max_scenario.getValue(
-                            config=max_config_name, region=region.name, area=area, zone=zone.name
+                            config=max_config_name,
+                            region=region.name,
+                            area=area,
+                            zone=zone.name,
                         ):
                             max_scenario.setValue(
                                 config=max_config_name,
