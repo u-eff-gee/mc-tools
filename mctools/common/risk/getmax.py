@@ -389,6 +389,40 @@ class Case:
             if len(self.configuration_names) > 1:
                 createMaxConfiguration(s=scenario)
 
+        self.createMaxScenario()
+
+    def createMaxScenario(self):
+        # self.scenarios.append(copy.deepcopy(self.scenarios[0]))
+        max_scenario = copy.deepcopy(self.scenarios[0])
+        max_scenario.name = "Max"
+        # max_scenario.addConfig(self.configuration(name="Max"))
+
+        for scenario in self.scenarios:
+            max_config_name = "Max"
+            if len(scenario.configurations) > 1:
+                max_config = scenario.getConfig("Max")
+            else:
+                max_config = scenario.configurations[0]
+                max_config_name = scenario.configurations[0].name
+
+            for region in max_config.regions:
+                for area in region.area:
+                    for zone in region.area[area].zones:
+                        v = scenario.getValue(
+                            config=max_config_name, region=region.name, area=area, zone=zone.name
+                        )
+                        if v > max_scenario.getValue(
+                            config=max_config_name, region=region.name, area=area, zone=zone.name
+                        ):
+                            max_scenario.setValue(
+                                config=max_config_name,
+                                region=region.name,
+                                area=area,
+                                zone=zone.name,
+                                value=v,
+                            )
+        self.scenarios.append(max_scenario)
+
     def toLaTeX(
         self,
         command_output_file_name: Path | None = None,
@@ -478,7 +512,8 @@ class Case:
             "\n"
             "\n"
             r"\usepackage{xparse}"
-            "\n"
+            "\n\n"
+            r"\setlength\parindent{0pt}"
             "\n\n"
             r"\input{"
             f"{command_output_file_name}"
