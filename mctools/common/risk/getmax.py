@@ -5,6 +5,7 @@ from functools import cached_property
 from io import StringIO
 from pathlib import Path
 import sys
+from time import time
 from typing import Type
 import warnings
 
@@ -375,7 +376,9 @@ class Case:
         self.configuration = configuration
 
     def initialize(self):
-        for scenario in self.scenarios:
+        t_start = time()
+        n_scenarios_including_max = len(self.scenarios) + 1
+        for n_scenario, scenario in enumerate(self.scenarios):
             for configuration_name in self.configuration_names:
                 scenario.addConfig(
                     self.configuration(
@@ -385,11 +388,19 @@ class Case:
                         scalefname=scenario.scale_file_name,
                     )
                 )
+                print(
+                    f"Scenario {n_scenario+1:3d}/{n_scenarios_including_max:3d}: "
+                    f"{(time()-t_start):4.2e} seconds ({scenario.name})"
+                )
 
             if len(self.configuration_names) > 1:
                 createMaxConfiguration(s=scenario)
 
         self.createMaxScenario()
+        print(
+            f"Scenario {n_scenarios_including_max:3d}/{n_scenarios_including_max:3d}: "
+            f"{(time()-t_start):4.2e} seconds (Max)"
+        )
 
     def createMaxScenario(self):
         max_scenario = copy.deepcopy(self.scenarios[0])
@@ -438,9 +449,15 @@ class Case:
                 command_output_file_name, "w", encoding="utf-8"
             ) as command_output_file:
                 command_output_file.write(commands)
+            print(
+                f"Created output file '{command_output_file_name}' which defines "
+                r"the \rate commands."
+            )
         else:
             print(commands)
 
+        if command_output_file_name is None:
+            command_output_file_name = Path("rates.tex")
         variables = self.createAllVariableLaTeX(
             command_output_file_name=command_output_file_name
         )
@@ -449,6 +466,18 @@ class Case:
                 variable_output_file_name, "w", encoding="utf-8"
             ) as variable_output_file:
                 variable_output_file.write(variables)
+            print(
+                f"Created output file '{variable_output_file_name}' which calls "
+                r"the \rate command for all possible arguments."
+                "\n"
+                r"It is assumed that the \rate commands are defined in a file "
+                f"called '{command_output_file_name}'."
+                "\nBuild document with\n\t"
+                f"LATEX {variable_output_file_name} && "
+                f"LATEX {variable_output_file_name}\n"
+                "where LATEX is your LATEX compiler.\n"
+                "LATEX is invoked twice to build the table of contents."
+            )
         else:
             print(variables)
 
