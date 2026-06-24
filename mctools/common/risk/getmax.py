@@ -509,6 +509,9 @@ class Case:
         buffer = [
             r"\documentclass{article}"
             "\n\n"
+            "\n"
+            r"\usepackage[margin=1in]{geometry}"
+            "\n"
             r"\usepackage{ifthen}"
             "\n"
             r"\usepackage{siunitx}"
