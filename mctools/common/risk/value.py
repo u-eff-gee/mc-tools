@@ -9,16 +9,16 @@ class Value:
         x: float = 0.0,
         y: float = 0.0,
         z: float = 0.0,
-        threshold: float = 1.0e-20,
+        threshold: float = float("-inf"),
     ):
         self.val = val
         self.err = err
         self.relerr = 100.0
-        if val >= threshold:
-            self.relerr = 100.0 * err / val
+        if val >= threshold and val != 0.0:
+            self.relerr = 100.0 * err / abs(val)
         else:
             warnings.warn(
-                f"Value smaller than the user-defined threshold of {threshold}"
+                f"Value smaller than the user-defined threshold of {threshold} "
                 "encountered. Arbitrarily setting its relative uncertainty to 100%."
             )
         self.x = x
@@ -36,4 +36,4 @@ class Value:
 
 class UnknownValue(Value):
     def __init__(self):
-        super().__init__(val=0.0, err=0.0, bin_index=0)
+        super().__init__(val=0.0, err=0.0)
