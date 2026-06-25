@@ -14,13 +14,16 @@ class Value:
         self.val = val
         self.err = err
         self.relerr = 100.0
-        if val >= threshold and val != 0.0:
-            self.relerr = 100.0 * err / abs(val)
+        if val != 0.0:
+            if val >= threshold:
+                self.relerr = 100.0 * err / abs(val)
+            else:
+                warnings.warn(
+                    f"Value smaller than the user-defined threshold of {threshold} "
+                    "encountered. Arbitrarily setting its relative uncertainty to 100%."
+                )
         else:
-            warnings.warn(
-                f"Value smaller than the user-defined threshold of {threshold} "
-                "encountered. Arbitrarily setting its relative uncertainty to 100%."
-            )
+            self.relerr = float("inf")
         self.x = x
         self.y = y
         self.z = z
