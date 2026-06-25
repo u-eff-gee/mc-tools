@@ -54,7 +54,7 @@ class TestRootInput(unittest.TestCase):
                             "L0_1": Zone(
                                 hist=ROOTFileInput(
                                     root_file_name=tmp_root.name,
-                                    histogram_name="l10l00",
+                                    histogram_name="l10l01",
                                     scale_file_name=tmp_scale_1.name,
                                 )
                             ),
@@ -65,14 +65,14 @@ class TestRootInput(unittest.TestCase):
                             "L0_0": Zone(
                                 hist=ROOTFileInput(
                                     root_file_name=tmp_root.name,
-                                    histogram_name="l10l00",
+                                    histogram_name="l11l00",
                                     scale_file_name=tmp_scale_2.name,
                                 )
                             ),
                             "L0_1": Zone(
                                 hist=ROOTFileInput(
                                     root_file_name=tmp_root.name,
-                                    histogram_name="l10l00",
+                                    histogram_name="l11l01",
                                     scale_file_name=tmp_scale_3.name,
                                 )
                             ),
@@ -80,4 +80,4 @@ class TestRootInput(unittest.TestCase):
                     ),
                 },
             )
-            self.assertEqual(lvl.get_max_value().val, 28.0)
+            self.assertEqual(lvl.get_max_value().val, 112.0)
