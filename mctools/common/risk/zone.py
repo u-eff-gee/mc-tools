@@ -1,5 +1,8 @@
 """BaseLevel associated with a ROOT TH3 histogram"""
 
+from pathlib import Path
+from dataclasses import dataclass
+
 import ROOT
 
 from mctools.common.risk.level import BaseLevel
@@ -25,6 +28,13 @@ class Limits3D:
         self.zlim = zlim
 
 
+@dataclass
+class ROOTFileInput:
+    root_file_name: Path
+    histogram_name: str
+    scale_file_name: Path
+
+
 class Zone(BaseLevel):
     """BaseLevel associated with a ROOT TH3 histogram
 
@@ -34,7 +44,7 @@ class Zone(BaseLevel):
 
     def __init__(
         self,
-        hist: ROOT.TH3F | ROOT.TH3D,
+        hist: ROOT.TH3F | ROOT.TH3D | ROOTFileInput,
         lim: Limits3D = Limits3D(),
         name: str = "",
         title: str = "",
@@ -45,20 +55,30 @@ class Zone(BaseLevel):
 
     def evaluate(self):
         """Find the maximum value in the (constrained) TH3"""
+
+        if isinstance(self.hist, ROOTFileInput):
+            tfile = ROOT.TFile(str(self.hist.root_file_name))
+            hist = tfile.Get(self.hist.histogram_name)
+            with open(self.hist.scale_file_name, encoding="utf-8") as scale_file:
+                scale = float(scale_file.readline())
+            hist.Scale(scale)
+        else:
+            hist = self.hist
+
         max_val = float("-inf")
         max_err = max_x = max_y = max_z = 0.0
-        for n_x in range(self.hist.GetNbinsX()):
-            x = self.hist.GetXaxis().GetBinCenter(n_x)
+        for n_x in range(hist.GetNbinsX()):
+            x = hist.GetXaxis().GetBinCenter(n_x)
             if self.lim.xlim.lower <= x < self.lim.xlim.upper:
-                for n_y in range(self.hist.GetNbinsY()):
-                    y = self.hist.GetYaxis().GetBinCenter(n_y)
+                for n_y in range(hist.GetNbinsY()):
+                    y = hist.GetYaxis().GetBinCenter(n_y)
                     if self.lim.ylim.lower <= y < self.lim.ylim.upper:
-                        for n_z in range(self.hist.GetNbinsZ()):
-                            z = self.hist.GetYaxis().GetBinCenter(n_z)
+                        for n_z in range(hist.GetNbinsZ()):
+                            z = hist.GetYaxis().GetBinCenter(n_z)
                             if z >= self.lim.zlim.lower <= z < self.lim.zlim.upper:
-                                if self.hist.GetBinContent(n_x, n_y, n_z) > max_val:
-                                    max_val = self.hist.GetBinContent(n_x, n_y, n_z)
-                                    max_err = self.hist.GetBinError(n_x, n_y, n_z)
+                                if hist.GetBinContent(n_x, n_y, n_z) > max_val:
+                                    max_val = hist.GetBinContent(n_x, n_y, n_z)
+                                    max_err = hist.GetBinError(n_x, n_y, n_z)
                                     max_x = x
                                     max_y = y
                                     max_z = z
