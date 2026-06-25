@@ -15,10 +15,12 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 
 class Value:
-    def __init__(self, val, err, bin_index, threshold=1.0e-20):
+    def __init__(
+        self, val: float, err: float, bin_index: int, x: float, y: float, z: float, threshold: float = 1.0e-20
+    ):
         self.val = val
         self.err = err
-        self.relerr = 100.0  # \percent
+        self.relerr = 100.0
         if val >= threshold:
             self.relerr = 100.0 * err / val
         else:
@@ -27,6 +29,9 @@ class Value:
                 "encountered. Arbitrarily setting its relative uncertainty to 100%."
             )
         self.bin_index = bin_index
+        self.x = x
+        self.y = y
+        self.z = z
 
     def __gt__(self, other):
         if isinstance(other, Value):
@@ -40,8 +45,8 @@ class Value:
 class Zone:
     def __init__(
         self,
-        name,
-        title,
+        name: str,
+        title: str,
         hist,
         area,
         xmin=None,
@@ -124,7 +129,7 @@ class Area:
     0m, 1m, Bulk, Duct, Max
     """
 
-    def __init__(self, name, title, region, getHist=None):
+    def __init__(self, name: str, title: str, region, getHist=None):
         self.name = name
         self.title = title
         self.zones: list[Zone] = []
