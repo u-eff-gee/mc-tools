@@ -43,5 +43,5 @@ class Level(BaseLevel):
     def evaluate(self):
         """Find the maximum value of all sublevels"""
         self.value = max(
-            sub_level.get_max_value() for sub_level in self.sub_levels.items()
+            self.sub_levels[sub_level].get_max_value() for sub_level in self.sub_levels
         )
