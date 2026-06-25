@@ -1,21 +1,13 @@
 import unittest
 
-import ROOT
-
 from mctools.common.risk.zone import Limits, Limits3D, Zone
+from mctools.common.risk.test.input_histogram import create_test_histogram
 
 
 class TestZone(unittest.TestCase):
     def test_zone(self):
         # Create test histogram
-        hist = ROOT.TH3F("th3", "th3", 2, 0.0, 2.0, 2, 0.0, 2.0, 2, 0.0, 2.0)
-        value = 0.0
-        for i in range(2):
-            for j in range(2):
-                for k in range(2):
-                    hist.SetBinContent(i, j, k, value)
-                    hist.SetBinError(i, j, k, value * 0.1)
-                    value += 1.0
+        hist = create_test_histogram()
 
         # Check content of test histogram
         self.assertEqual(hist.GetBinContent(0, 0, 0), 0.0)
