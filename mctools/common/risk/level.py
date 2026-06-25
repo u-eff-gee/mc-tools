@@ -45,3 +45,11 @@ class Level(BaseLevel):
         self.value = max(
             self.sub_levels[sub_level].get_max_value() for sub_level in self.sub_levels
         )
+
+
+def depth_first_search(obj: Level | BaseLevel):
+    if isinstance(obj, Level):
+        for level in obj.sub_levels:
+            yield from depth_first_search(obj.sub_levels[level])
+    else:
+        yield obj
