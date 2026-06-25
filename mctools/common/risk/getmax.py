@@ -16,7 +16,13 @@ ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 class Value:
     def __init__(
-        self, val: float, err: float, bin_index: int, x: float, y: float, z: float, threshold: float = 1.0e-20
+        self,
+        val: float,
+        err: float,
+        x: float = 0.0,
+        y: float = 0.0,
+        z: float = 0.0,
+        threshold: float = 1.0e-20,
     ):
         self.val = val
         self.err = err
@@ -28,7 +34,6 @@ class Value:
                 f"Value smaller than the user-defined threshold of {threshold}"
                 "encountered. Arbitrarily setting its relative uncertainty to 100%."
             )
-        self.bin_index = bin_index
         self.x = x
         self.y = y
         self.z = z
@@ -40,6 +45,11 @@ class Value:
 
     def __str__(self):
         return f"{self.val:.3g} ± {self.err:.1g}   {self.relerr:.1f} %"
+
+
+class UnknownValue(Value):
+    def __init__(self):
+        super().__init__(val=0.0, err=0.0, bin_index=0)
 
 
 class Zone:
