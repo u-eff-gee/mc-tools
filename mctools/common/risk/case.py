@@ -68,7 +68,7 @@ class Case:
             f"LATEX {variable_output_file_name} && "
             f"LATEX {variable_output_file_name}\n"
             "where LATEX is your LATEX compiler.\n"
-            "LATEX is invoked twice to build the table of contents."
+            "(LATEX is invoked twice to build the table of contents.)"
         )
 
     def createLaTeXCommands(self) -> str:
@@ -130,7 +130,17 @@ class Case:
                     )
                     buffer.append("      }{}%\n")
                 buffer.append("    }{}%\n")
-            buffer.append("  }{}%\n")
+            buffer.append("  }{%\n")
+            for combo in scenario.data.cross_level_combinations:
+                buffer.append(
+                    r"\ifthenelse{\equal{#1}{"
+                    f"{combo}"
+                    "}}{% "
+                    f"{combo}\n"
+                    f"{getPrintedValue(value=scenario[combo].value)}"
+                )
+                buffer.append("}{}\n")
+            buffer.append("}%\n")
         buffer.append("}%\n")
         return "".join(buffer)
 
@@ -138,7 +148,6 @@ class Case:
         buffer = [
             r"\documentclass{article}"
             "\n\n"
-            "\n"
             r"\usepackage[margin=1in]{geometry}"
             "\n"
             r"\usepackage{ifthen}"
@@ -164,9 +173,9 @@ class Case:
             "\n"
             r"  \scenario.\region.\area.\zone : \value"
             "\n}\n"
-            r"\newcommand\printAreaMax{%"
+            r"\newcommand\printCombo{%"
             "\n"
-            r"  \scenario.\region.Max : \value"
+            r"  \combo : \value"
             "\n}\n\n"
             r"\begin{document}"
             "\n"
@@ -198,5 +207,10 @@ class Case:
                             r"\print"
                             "\n\n"
                         )
+            for combo in scenario.data.cross_level_combinations:
+                buffer.append(r"\def\combo{" f"{combo}" "}\n")
+                buffer.append(
+                    r"\def\value{\rate{" f"{combo}" "}{}{}{}}\n" r"\printCombo" "\n\n"
+                )
         buffer.append(r"\end{document}")
         return "".join(buffer)
