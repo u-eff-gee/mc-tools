@@ -42,6 +42,7 @@ class TestData(unittest.TestCase):
                 ),
             },
         )
+        data.set_sub_level_paths()
 
         # Verify that the paths are set correctly
         self.assertEqual(data.sources["L2_0"].path, "L2_0")
