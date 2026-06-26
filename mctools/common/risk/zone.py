@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from dataclasses import dataclass
+from warnings import warn
 
 import ROOT
 
@@ -13,8 +14,16 @@ class Limits:
     """Limits for a 1D variable"""
 
     def __init__(self, lower: float = float("-inf"), upper: float = float("inf")):
-        self.lower = lower
-        self.upper = upper
+        if upper < lower:
+            warn(
+                "Given lower limit is larger than upper limit."
+                "Assigning Limits.lower = upper and Limits.upper = lower."
+            )
+            self.lower = upper
+            self.upper = lower
+        else:
+            self.lower = lower
+            self.upper = upper
 
 
 class Limits3D:
