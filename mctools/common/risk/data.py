@@ -54,7 +54,7 @@ class Data:
                 f"{title}:"
                 f" {result[1].value} at {result[1].value.x:.4f} "
                 f"{result[1].value.y:.4f} {result[1].value.z:.4f}"
-                "\n"
+                f"\t{result[1].path}\n"
             )
             if result[1].value.val > threshold:
                 buffer.append(
