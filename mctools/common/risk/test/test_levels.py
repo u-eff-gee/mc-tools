@@ -84,24 +84,32 @@ class TestLevels(unittest.TestCase):
 
     def test_paths(self):
         lvl = Level(
-            name="L4",
+            name="L3",
+            path="L3",
             sub_levels={
-                "L3_0": Level(
+                "L2_0": Level(
                     sub_levels={
-                        "L2_0": Level(
-                            name="L1_0",
+                        "L1_0": Level(
                             sub_levels={"L0_0": Zone(hist=""), "L0_1": Zone(hist="")},
                         ),
-                        "L2_1": Zone(hist=""),
+                        "L1_1": Zone(hist=""),
                     }
                 ),
-                "L3_1": Level(
+                "L2_1": Level(
                     sub_levels={
-                        "L2_0": Zone(hist=""),
-                        "L2_1": Zone(hist=""),
+                        "L1_0": Zone(hist=""),
+                        "L1_1": Zone(hist=""),
                     }
                 ),
             },
         )
         lvl.set_sub_level_paths()
-        self.assertEqual(lvl.path, "")
+        self.assertEqual(lvl.path, "L3")
+        self.assertEqual(lvl["L2_0"].path, "L3.L2_0")
+        self.assertEqual(lvl["L2_0"]["L1_0"].path, "L3.L2_0.L1_0")
+        self.assertEqual(lvl["L2_0"]["L1_0"]["L0_0"].path, "L3.L2_0.L1_0.L0_0")
+        self.assertEqual(lvl["L2_0"]["L1_0"]["L0_1"].path, "L3.L2_0.L1_0.L0_1")
+        self.assertEqual(lvl["L2_0"]["L1_1"].path, "L3.L2_0.L1_1")
+        self.assertEqual(lvl["L2_1"].path, "L3.L2_1")
+        self.assertEqual(lvl["L2_1"]["L1_0"].path, "L3.L2_1.L1_0")
+        self.assertEqual(lvl["L2_1"]["L1_1"].path, "L3.L2_1.L1_1")
