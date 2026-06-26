@@ -38,7 +38,7 @@ class Data:
             self.sources[source].set_sub_level_paths(separator=separator)
         for combo in self.cross_level_combinations:
             self.cross_level_combinations[combo].name = combo
-            self.cross_level_combinations[combo].path = combo
+            self.cross_level_combinations[combo].path = path_prefix + combo
 
     def get_results(self) -> tuple[tuple[str], Value]:
         """Return the results as a flat list"""
