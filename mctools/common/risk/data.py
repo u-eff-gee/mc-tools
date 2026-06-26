@@ -32,9 +32,9 @@ class Data:
         if cross_level_combinations is not None:
             self.cross_level_combinations = cross_level_combinations
 
-    def __str__(self, threshold: float = float("inf"), unit: str = ""):
+    def __str__(self, threshold: float = float("inf"), unit: str = "", include_top_level: bool = True):
         buffer = []
-        results: tuple[tuple[str], BaseLevel] = self.get_results()
+        results: tuple[tuple[str], BaseLevel] = self.get_results(include_top_level=include_top_level)
         for result in results:
             title = result[1].title if result[1].title != "" else result[1].path
             buffer.append(
@@ -57,11 +57,12 @@ class Data:
             self.cross_level_combinations[combo].name = combo
             self.cross_level_combinations[combo].path = path_prefix + combo
 
-    def get_results(self) -> tuple[tuple[str], BaseLevel]:
+    def get_results(self, include_top_level: bool =True) -> tuple[tuple[str], BaseLevel]:
         """Return the results as a flat list"""
         data: tuple[tuple[str], Value] = []
         for source in self.sources:
-            data.append(((self.sources[source].path,), self.sources[source]))
+            if include_top_level:
+                data.append(((self.sources[source].path,), self.sources[source]))
             for path, level in depth_first_search_with_path(self.sources[source]):
                 data.append((path, level))
         for combo in self.cross_level_combinations:
