@@ -42,6 +42,19 @@ class TestData(unittest.TestCase):
                 ),
             },
         )
+
+        # Verify that the paths are set correctly
+        self.assertEqual(data.sources["L2_0"].path, "L2_0")
+        self.assertEqual(data.sources["L2_0"]["L1_0"].path, "L2_0.L1_0")
+        self.assertEqual(data.sources["L2_0"]["L1_1"].path, "L2_0.L1_1")
+        self.assertEqual(data.sources["L2_1"].path, "L2_1")
+        self.assertEqual(data.sources["L2_1"]["L1_0"].path, "L2_1.L1_0")
+        self.assertEqual(data.sources["L2_1"]["L1_0"]["L0_0"].path, "L2_1.L1_0.L0_0")
+        self.assertEqual(data.sources["L2_1"]["L1_0"]["L0_1"].path, "L2_1.L1_0.L0_1")
+        self.assertEqual(data.sources["L2_1"]["L1_1"].path, "L2_1.L1_1")
+        self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_0"].path, "L2_1.L1_1.L0_0")
+        self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_1"].path, "L2_1.L1_1.L0_1")
+
         data.evaluate()
         # Level 2
         self.assertEqual(data.sources["L2_0"].value.val, 14.0)

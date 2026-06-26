@@ -16,7 +16,7 @@ class SourceCombination(BaseLevel):
         for source in self.combination:
             level: BaseLevel = self.sources[source[0]]
             for lvl in source[1:]:
-                level = level.sub_levels[lvl]
+                level = level[lvl]
             values.append(level.value)
         self.value = max(values)
 
@@ -28,9 +28,15 @@ class Data:
         cross_level_combinations: dict[str, SourceCombination] | None = None,
     ):
         self.sources = sources
+        self.set_sub_level_paths()
         self.cross_level_combinations: dict[str, SourceCombination] = {}
         if cross_level_combinations is not None:
             self.cross_level_combinations = cross_level_combinations
+
+    def set_sub_level_paths(self, separator: str = "."):
+        for source in self.sources:
+            self.sources[source].path = source
+            self.sources[source].set_sub_level_paths(separator=separator)
 
     def evaluate(self):
         for source in self.sources:
