@@ -1,4 +1,4 @@
-from mctools.common.risk.level import BaseLevel, Level
+from mctools.common.risk.level import BaseLevel, depth_first_search_with_path, Level
 from mctools.common.risk.value import Value
 
 
@@ -17,7 +17,7 @@ class SourceCombination(BaseLevel):
             level: BaseLevel = self.sources[source[0]]
             for lvl in source[1:]:
                 level = level[lvl]
-            values.append(level.value)
+            values.append(level.get_max_value())
         self.value = max(values)
 
 
@@ -28,15 +28,35 @@ class Data:
         cross_level_combinations: dict[str, SourceCombination] | None = None,
     ):
         self.sources = sources
-        self.set_sub_level_paths()
         self.cross_level_combinations: dict[str, SourceCombination] = {}
         if cross_level_combinations is not None:
             self.cross_level_combinations = cross_level_combinations
 
-    def set_sub_level_paths(self, separator: str = "."):
+    def set_sub_level_paths(self, separator: str = ".", path_prefix: str = ""):
         for source in self.sources:
-            self.sources[source].path = source
+            self.sources[source].path = path_prefix + source
             self.sources[source].set_sub_level_paths(separator=separator)
+        for combo in self.cross_level_combinations:
+            self.cross_level_combinations[combo].name = combo
+            self.cross_level_combinations[combo].path = combo
+
+    def get_results(self) -> tuple[tuple[str], Value]:
+        """Return the results as a flat list"""
+        data: tuple[tuple[str], Value] = []
+        for source in self.sources:
+            data.append(
+                ((self.sources[source].path,), self.sources[source].get_max_value())
+            )
+            for path, zone in depth_first_search_with_path(self.sources[source]):
+                data.append((path, zone.get_max_value()))
+        for combo in self.cross_level_combinations:
+            data.append(
+                (
+                    (self.cross_level_combinations[combo].path,),
+                    self.cross_level_combinations[combo].get_max_value(),
+                )
+            )
+        return data
 
     def evaluate(self):
         for source in self.sources:
