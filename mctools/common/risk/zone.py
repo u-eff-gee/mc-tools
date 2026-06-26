@@ -115,3 +115,6 @@ class Zone(BaseLevel):
             )
         else:
             raise (ValueError(f"Input histogram for Zone '{self.name}' missing."))
+
+    def set_sub_level_paths(self, path_prefix="", separator="."):
+        pass
