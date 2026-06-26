@@ -74,6 +74,11 @@ class TestCaseClass(unittest.TestCase):
                                     }
                                 ),
                             },
+                            arbitrary_level_combos={
+                                "Region0.Max": SourceCombination(
+                                    combination=[["Region0"]], path=("Region0.Max")
+                                )
+                            },
                         ),
                         root_file_name=tmp_root.name,
                         scale_file_name=tmp_scale.name,
