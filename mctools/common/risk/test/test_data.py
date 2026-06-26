@@ -11,10 +11,11 @@ class TestData(unittest.TestCase):
         data = Data(
             sources={
                 "L2_0": Level(
+                    title="Level 2, Sublevel 0",
                     sub_levels={
                         "L1_0": Zone(hist=create_test_histogram("L1_0", 1.0)),
                         "L1_1": Zone(hist=create_test_histogram("L1_1", 2.0)),
-                    }
+                    },
                 ),
                 "L2_1": Level(
                     sub_levels={
@@ -73,3 +74,35 @@ class TestData(unittest.TestCase):
         # Combinations
         self.assertEqual(data.cross_level_combinations["c1"].value.val, 28.0)
         self.assertEqual(data.cross_level_combinations["c2"].value.val, 42.0)
+
+        # Test string representation
+        self.assertEqual(
+            data.__str__(),
+            "Level 2, Sublevel 0: 14 ± 1   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_0.L1_0: 7 ± 0.7   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_0.L1_1: 14 ± 1   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_0.L0_0: 21 ± 2   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_0.L0_1: 28 ± 3   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_1.L0_0: 35 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_1.L0_1: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "c1: 28 ± 3   10.0 % at 0.50000.5000 0.5000\n"
+            "c2: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n",
+        )
+
+        self.assertEqual(
+            data.__str__(threshold=40.0, unit="a.u."),
+            "Level 2, Sublevel 0: 14 ± 1   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_0.L1_0: 7 ± 0.7   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_0.L1_1: 14 ± 1   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "\033[31m Above 40.0 a.u.: \033[0m L2_1: 42 ± 4   10.0 %\n"
+            "L2_1.L1_0.L0_0: 21 ± 2   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_0.L0_1: 28 ± 3   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_1.L0_0: 35 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "L2_1.L1_1.L0_1: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "\033[31m Above 40.0 a.u.: \033[0m L2_1.L1_1.L0_1: 42 ± 4   10.0 %\n"
+            "c1: 28 ± 3   10.0 % at 0.50000.5000 0.5000\n"
+            "c2: 42 ± 4   10.0 % at 0.50000.5000 0.5000\n"
+            "\033[31m Above 40.0 a.u.: \033[0m c2: 42 ± 4   10.0 %\n",
+        )

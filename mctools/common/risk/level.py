@@ -12,7 +12,8 @@ class BaseLevel:
         self.name = name
         if self.name != "" and title == "":
             self.title = name
-        else: self.title = title
+        else:
+            self.title = title
         self.path = path
         self.value: Value = UnknownValue()
 
