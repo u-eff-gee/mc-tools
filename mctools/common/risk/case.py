@@ -37,8 +37,14 @@ class Case:
         self.scenarios = scenarios
 
     def evaluate(self):
-        for scenario in self.scenarios:
+        t_start = time()
+        n_scenarios = len(self.scenarios)
+        for n_scenario, scenario in enumerate(self.scenarios):
             self.scenarios[scenario].evaluate()
+            print(
+                f"Scenario {n_scenario+1:3d}/{n_scenarios:3d}: "
+                f"{(time()-t_start):4.2e} seconds ({scenario})"
+            )
 
     def toLaTeX(
         self,
@@ -50,7 +56,10 @@ class Case:
             command_output_file_name, "w", encoding="utf-8"
         ) as command_output_file:
             command_output_file.write(commands)
-
+        print(
+            f"Created output file '{command_output_file_name}' which defines "
+            r"the \rate commands."
+        )
         variables = self.createAllVariableLaTeX(
             command_output_file_name=command_output_file_name
         )
