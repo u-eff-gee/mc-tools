@@ -39,7 +39,7 @@ class Data:
             title = result[1].title if result[1].title != "" else result[1].path
             buffer.append(
                 f"{title}:"
-                f" {result[1].value} at {result[1].value.x:.4f}"
+                f" {result[1].value} at {result[1].value.x:.4f} "
                 f"{result[1].value.y:.4f} {result[1].value.z:.4f}"
                 "\n"
             )
