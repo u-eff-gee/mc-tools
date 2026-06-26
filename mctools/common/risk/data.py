@@ -35,7 +35,7 @@ class Data:
     def __str__(self, threshold: float = float("inf"), unit: str = ""):
         buffer = []
         results: tuple[tuple[str], BaseLevel] = self.get_results()
-        for n_result, result in enumerate(results):
+        for result in results:
             title = result[1].title if result[1].title != "" else result[1].path
             buffer.append(
                 f"{title}:"
