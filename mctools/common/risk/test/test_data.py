@@ -35,10 +35,10 @@ class TestData(unittest.TestCase):
                 ),
             },
             cross_level_combinations={
-                "c1": SourceCombination(
+                "custom0": SourceCombination(
                     combination=[["L2_0"], ["L2_1", "L1_0", "L0_1"]]
                 ),
-                "c2": SourceCombination(
+                "custom1": SourceCombination(
                     combination=[["L2_0"], ["L2_1", "L1_0", "L0_1"], ["L2_1", "L1_1"]]
                 ),
             },
@@ -72,8 +72,8 @@ class TestData(unittest.TestCase):
         self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_0"].value.val, 35.0)
         self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_1"].value.val, 42.0)
         # Combinations
-        self.assertEqual(data.cross_level_combinations["c1"].value.val, 28.0)
-        self.assertEqual(data.cross_level_combinations["c2"].value.val, 42.0)
+        self.assertEqual(data.cross_level_combinations["custom0"].value.val, 28.0)
+        self.assertEqual(data.cross_level_combinations["custom1"].value.val, 42.0)
 
         # Test string representation
         self.assertEqual(
@@ -86,8 +86,8 @@ class TestData(unittest.TestCase):
             "L2_1.L1_0.L0_1: 28 ± 3   10.0 % at 0.5000 0.5000 0.5000\n"
             "L2_1.L1_1.L0_0: 35 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
             "L2_1.L1_1.L0_1: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
-            "c1: 28 ± 3   10.0 % at 0.5000 0.5000 0.5000\n"
-            "c2: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n",
+            "custom0: 28 ± 3   10.0 % at 0.5000 0.5000 0.5000\n"
+            "custom1: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n",
         )
 
         self.assertEqual(
@@ -102,7 +102,7 @@ class TestData(unittest.TestCase):
             "L2_1.L1_1.L0_0: 35 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
             "L2_1.L1_1.L0_1: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
             "\033[31m Above 40.0 a.u.: \033[0m L2_1.L1_1.L0_1: 42 ± 4   10.0 %\n"
-            "c1: 28 ± 3   10.0 % at 0.5000 0.5000 0.5000\n"
-            "c2: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
-            "\033[31m Above 40.0 a.u.: \033[0m c2: 42 ± 4   10.0 %\n",
+            "custom0: 28 ± 3   10.0 % at 0.5000 0.5000 0.5000\n"
+            "custom1: 42 ± 4   10.0 % at 0.5000 0.5000 0.5000\n"
+            "\033[31m Above 40.0 a.u.: \033[0m custom1: 42 ± 4   10.0 %\n",
         )
