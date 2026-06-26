@@ -10,8 +10,8 @@ class Scenario:
         self,
         name: str,
         data: Data,
-        root_file_name: Path | None = None,
-        scale_file_name: Path | None = None,
+        root_file_name: Path,
+        scale_file_name: Path,
     ):
         self.name = name
         self.data = data
@@ -21,12 +21,18 @@ class Scenario:
         for source in self.data.sources:
             for base_level in depth_first_search(data.sources[source]):
                 if isinstance(base_level, Zone):
-                    hist_name = base_level.hist
-                    base_level.hist = ROOTFileInput(
-                        root_file_name=self.root_file_name,
-                        histogram_name=hist_name,
-                        scale_file_name=scale_file_name,
-                    )
+                    if isinstance(base_level.hist, str):
+                        hist_name = base_level.hist
+                        base_level.hist = ROOTFileInput(
+                            root_file_name=self.root_file_name,
+                            histogram_name=hist_name,
+                            scale_file_name=scale_file_name,
+                        )
+                    else:
+                        raise ValueError(
+                            "Scenario assumes that all histograms are"
+                            "given by name (str)."
+                        )
 
     def evaluate(self):
         self.data.evaluate()
