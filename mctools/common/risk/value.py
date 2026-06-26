@@ -35,7 +35,7 @@ class Value:
 
     def __str__(self):
         return f"{self.val:.3g} ± {self.err:.1g}   {self.relerr:.1f} %"
-    
+
     def __repr__(self):
         return f"Value({self.val}, {self.err})"
 
