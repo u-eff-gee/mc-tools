@@ -2,7 +2,7 @@
 
 from abc import abstractmethod
 
-from value import UnknownValue, Value
+from mctools.common.risk.value import UnknownValue, Value
 
 
 class BaseLevel:
