@@ -89,23 +89,32 @@ class Zone(BaseLevel):
             max_val = float("-inf")
             max_err = max_x = max_y = max_z = 0.0
             for n_x in range(hist.GetNbinsX()):
-                if bin_in_range(n_bin=n_x, axis=hist.GetXaxis(), limits=self.lim.xlim):
+                if bin_in_range(
+                    n_bin=n_x + 1, axis=hist.GetXaxis(), limits=self.lim.xlim
+                ):
                     for n_y in range(hist.GetNbinsY()):
                         if bin_in_range(
-                            n_bin=n_y, axis=hist.GetYaxis(), limits=self.lim.ylim
+                            n_bin=n_y + 1, axis=hist.GetYaxis(), limits=self.lim.ylim
                         ):
                             for n_z in range(hist.GetNbinsZ()):
                                 if bin_in_range(
-                                    n_bin=n_z,
+                                    n_bin=n_z + 1,
                                     axis=hist.GetZaxis(),
                                     limits=self.lim.zlim,
                                 ):
-                                    if hist.GetBinContent(n_x, n_y, n_z) > max_val:
-                                        max_val = hist.GetBinContent(n_x, n_y, n_z)
-                                        max_err = hist.GetBinError(n_x, n_y, n_z)
-                                        max_x = hist.GetXaxis().GetBinCenter(n_x)
-                                        max_y = hist.GetYaxis().GetBinCenter(n_y)
-                                        max_z = hist.GetZaxis().GetBinCenter(n_z)
+                                    if (
+                                        hist.GetBinContent(n_x + 1, n_y + 1, n_z + 1)
+                                        > max_val
+                                    ):
+                                        max_val = hist.GetBinContent(
+                                            n_x + 1, n_y + 1, n_z + 1
+                                        )
+                                        max_err = hist.GetBinError(
+                                            n_x + 1, n_y + 1, n_z + 1
+                                        )
+                                        max_x = hist.GetXaxis().GetBinCenter(n_x + 1)
+                                        max_y = hist.GetYaxis().GetBinCenter(n_y + 1)
+                                        max_z = hist.GetZaxis().GetBinCenter(n_z + 1)
             self.value = Value(
                 val=max_val,
                 err=max_err,
