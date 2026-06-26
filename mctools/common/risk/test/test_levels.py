@@ -59,15 +59,15 @@ class TestLevels(unittest.TestCase):
                         "L0_0": Zone(
                             hist=create_test_histogram("L1_0", 3.0),
                             lim=Limits3D(
-                                zlim=Limits(upper=0.0),
+                                zlim=Limits(upper=-0.1),
                             ),
                         ),
                         "L0_1": Zone(
                             hist=create_test_histogram("L1_1", 4.0),
                             lim=Limits3D(
-                                xlim=Limits(upper=0.0),
-                                ylim=Limits(lower=0.0),
-                                zlim=Limits(upper=0.0),
+                                xlim=Limits(upper=-0.1),
+                                ylim=Limits(lower=0.1),
+                                zlim=Limits(upper=-0.1),
                             ),
                         ),
                     }
