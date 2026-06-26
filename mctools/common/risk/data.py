@@ -32,6 +32,23 @@ class Data:
         if cross_level_combinations is not None:
             self.cross_level_combinations = cross_level_combinations
 
+    def __str__(self, threshold: float = float("inf"), unit: str=""):
+        buffer = []
+        results: tuple[tuple[str], BaseLevel] = self.get_results()
+        for n_result, result in enumerate(results):
+            title = result[1].title if result[1].title != "" else result[1].path
+            buffer.append(
+                f"{title}:"
+                f" {result[1].value} at {result[1].value.x:.4f}"
+                f"{result[1].value.y:.4f} {result[1].value.z:.4f}"
+                "\n"
+            )
+            if result[1].value.val > threshold:
+                buffer.append(
+                    f"\033[31m Above {threshold} {unit}: \033[0m {title}: {result[1].value}\n"
+                )
+        return "".join(buffer)
+
     def set_sub_level_paths(self, separator: str = ".", path_prefix: str = ""):
         for source in self.sources:
             self.sources[source].path = path_prefix + source
@@ -40,20 +57,20 @@ class Data:
             self.cross_level_combinations[combo].name = combo
             self.cross_level_combinations[combo].path = path_prefix + combo
 
-    def get_results(self) -> tuple[tuple[str], Value]:
+    def get_results(self) -> tuple[tuple[str], BaseLevel]:
         """Return the results as a flat list"""
         data: tuple[tuple[str], Value] = []
         for source in self.sources:
             data.append(
-                ((self.sources[source].path,), self.sources[source].get_max_value())
+                ((self.sources[source].path,), self.sources[source])
             )
-            for path, zone in depth_first_search_with_path(self.sources[source]):
-                data.append((path, zone.get_max_value()))
+            for path, level in depth_first_search_with_path(self.sources[source]):
+                data.append((path, level))
         for combo in self.cross_level_combinations:
             data.append(
                 (
                     (self.cross_level_combinations[combo].path,),
-                    self.cross_level_combinations[combo].get_max_value(),
+                    self.cross_level_combinations[combo],
                 )
             )
         return data
