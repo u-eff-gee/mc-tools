@@ -36,8 +36,8 @@ class TestCaseClass(unittest.TestCase):
                 scale_file.write("1.0")
 
             case = Case(
-                scenarios=[
-                    Scenario(
+                scenarios={
+                    "Scenario0": Scenario(
                         name="Scenario0",
                         data=Data(
                             sources={
@@ -83,7 +83,7 @@ class TestCaseClass(unittest.TestCase):
                         root_file_name=tmp_root.name,
                         scale_file_name=tmp_scale.name,
                     )
-                ]
+                }
             )
             case.evaluate()
             case.toLaTeX(

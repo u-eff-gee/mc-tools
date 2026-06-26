@@ -32,13 +32,13 @@ def getPrintedValue(val=None, err=None, value: Value | None = None):
 
 
 class Case:
-    def __init__(self, scenarios: list[Scenario], name: str = ""):
+    def __init__(self, scenarios: dict[str, Scenario], name: str = ""):
         self.name = name
         self.scenarios = scenarios
 
     def evaluate(self):
         for scenario in self.scenarios:
-            scenario.evaluate()
+            self.scenarios[scenario].evaluate()
 
     def toLaTeX(
         self,
@@ -86,42 +86,37 @@ class Case:
 
         for scenario in self.scenarios:
             buffer.append(
-                r"\ifthenelse{\equal{#1}{"
-                f"{scenario.name}"
-                "}}{% "
-                f"{scenario.name}\n"
+                r"\ifthenelse{\equal{#1}{" f"{scenario}" "}}{% " f"{scenario}\n"
             )
-            for region in scenario.data.sources:
+            for region in self.scenarios[scenario].data.sources:
                 buffer.append(
                     r"  \ifthenelse{\equal{#2}{"
                     f"{region}"
                     "}}{% "
-                    f"{scenario[region].path}\n"
+                    f"{self.scenarios[scenario][region].path}\n"
                 )
-                for area in scenario.data.sources[region].sub_levels:
+                for area in self.scenarios[scenario][region].sub_levels:
                     buffer.append(
                         r"    \ifthenelse{\equal"
                         "{#3}{" + f"{area}"
                         "}}{% "
-                        f"{scenario[region][area].path}\n"
+                        f"{self.scenarios[scenario][region][area].path}\n"
                     )
-                    for zone in (
-                        scenario.data.sources[region].sub_levels[area].sub_levels
-                    ):
+                    for zone in self.scenarios[scenario][region][area].sub_levels:
                         buffer.append(
                             r"      \ifthenelse{\equal{#4}{"
                             f"{zone}"
                             "}}{"
-                            f"{getPrintedValue(value=scenario[region][area][zone].value)}"
+                            f"{getPrintedValue(value=self.scenarios[scenario][region][area][zone].value)}"
                             "}{"
-                            f"% {scenario[region][area][zone].path}\n"
+                            f"% {self.scenarios[scenario][region][area][zone].path}\n"
                         )
                     buffer.append(
                         "        "
                         + (
                             "}"
                             * len(
-                                scenario.data.sources[region]
+                                self.scenarios[scenario][region]
                                 .sub_levels[area]
                                 .sub_levels
                             )
@@ -131,13 +126,13 @@ class Case:
                     buffer.append("      }{}%\n")
                 buffer.append("    }{}%\n")
             buffer.append("  }{%\n")
-            for combo in scenario.data.arbitrary_level_combos:
+            for combo in self.scenarios[scenario].data.arbitrary_level_combos:
                 buffer.append(
                     r"\ifthenelse{\equal{#1}{"
                     f"{combo}"
                     "}}{% "
                     f"{combo}\n"
-                    f"{getPrintedValue(value=scenario[combo].value)}"
+                    f"{getPrintedValue(value=self.scenarios[scenario][combo].value)}"
                 )
                 buffer.append("}{}\n")
             buffer.append("}%\n")
@@ -184,19 +179,19 @@ class Case:
         ]
 
         for scenario in self.scenarios:
-            buffer.append(r"\section{" f"{scenario.name}" "}")
-            buffer.append(r"\def\scenario{" f"{scenario.name}" "}\n")
-            for region in scenario.data.sources:
+            buffer.append(r"\section{" f"{scenario}" "}")
+            buffer.append(r"\def\scenario{" f"{scenario}" "}\n")
+            for region in self.scenarios[scenario].data.sources:
                 buffer.append(r"\def\region{" f"{region}" "}\n")
-                for area in scenario.data.sources[region].sub_levels:
+                for area in self.scenarios[scenario][region].sub_levels:
                     buffer.append(r"\def\area{" f"{area}" "}\n")
                     for zone in (
-                        scenario.data.sources[region].sub_levels[area].sub_levels
+                        self.scenarios[scenario][region].sub_levels[area].sub_levels
                     ):
                         buffer.append(r"\def\zone{" f"{zone}" "}\n")
                         buffer.append(
                             r"\def\value{\rate{"
-                            f"{scenario.name}"
+                            f"{scenario}"
                             "}{"
                             f"{region}"
                             "}{"
@@ -207,10 +202,13 @@ class Case:
                             r"\print"
                             "\n\n"
                         )
-            for combo in scenario.data.arbitrary_level_combos:
+            for combo in self.scenarios[scenario].data.arbitrary_level_combos:
                 buffer.append(r"\def\combo{" f"{combo}" "}\n")
                 buffer.append(
                     r"\def\value{\rate{" f"{combo}" "}{}{}{}}\n" r"\printCombo" "\n\n"
                 )
         buffer.append(r"\end{document}")
         return "".join(buffer)
+
+    def __getitem__(self, key: str):
+        return self.scenarios[key]
