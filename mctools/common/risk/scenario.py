@@ -6,6 +6,12 @@ from mctools.common.risk.zone import ROOTFileInput, Zone
 
 
 class Scenario:
+    """Wrapper for Data class
+
+    Assumes that all Zones obtain their histogram data from the same ROOT file and use
+    the same scaling factor.
+    """
+
     def __init__(
         self,
         name: str,
@@ -18,6 +24,8 @@ class Scenario:
         self.root_file_name = root_file_name
         self.scale_file_name = scale_file_name
 
+        # Find the Zone objects at the lowest levels of the hierarchy and assign
+        # the ROOTFileInput (data, scale factor, and histogram name) to them.
         for source in self.data.sources:
             for base_level in depth_first_search(data.sources[source]):
                 if isinstance(base_level, Zone):
@@ -33,6 +41,12 @@ class Scenario:
                             "Scenario assumes that all histograms are"
                             "given by name (str)."
                         )
+        self.set_sub_level_paths()
+
+    def set_sub_level_paths(self, separator: str = "."):
+        self.data.set_sub_level_paths(
+            separator=separator, path_prefix=self.name + separator
+        )
 
     def evaluate(self):
         self.data.evaluate()
