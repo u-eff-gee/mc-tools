@@ -44,11 +44,22 @@ class ROOTFileInput:
     scale_file_name: Path
 
 
+def bin_in_range(n_bin: int, axis: ROOT.TAxis, limits: Limits) -> bool:
+    if limits.upper < axis.GetBinLowEdge(n_bin) or limits.lower > axis.GetBinUpEdge(
+        n_bin
+    ):
+        return False
+    return True
+
+
 class Zone(BaseLevel):
     """BaseLevel associated with a ROOT TH3 histogram
 
     It is possible to use box constraints to limit the range of bins that are searched
-    for the maximum value. The constraints are applied to the bin centers.
+    for the maximum value.
+    For each axis individually, a minimum and maximum value can be given.
+    If the minimum value is larger than the upper edge of a bin or the maximum value is
+    smaller than the lower edge of a bin, the bin is not included in the search.
     """
 
     def __init__(
@@ -78,20 +89,23 @@ class Zone(BaseLevel):
             max_val = float("-inf")
             max_err = max_x = max_y = max_z = 0.0
             for n_x in range(hist.GetNbinsX()):
-                x = hist.GetXaxis().GetBinCenter(n_x)
-                if self.lim.xlim.lower <= x < self.lim.xlim.upper:
+                if bin_in_range(n_bin=n_x, axis=hist.GetXaxis(), limits=self.lim.xlim):
                     for n_y in range(hist.GetNbinsY()):
-                        y = hist.GetYaxis().GetBinCenter(n_y)
-                        if self.lim.ylim.lower <= y < self.lim.ylim.upper:
+                        if bin_in_range(
+                            n_bin=n_y, axis=hist.GetYaxis(), limits=self.lim.ylim
+                        ):
                             for n_z in range(hist.GetNbinsZ()):
-                                z = hist.GetYaxis().GetBinCenter(n_z)
-                                if z >= self.lim.zlim.lower <= z < self.lim.zlim.upper:
+                                if bin_in_range(
+                                    n_bin=n_z,
+                                    axis=hist.GetZaxis(),
+                                    limits=self.lim.zlim,
+                                ):
                                     if hist.GetBinContent(n_x, n_y, n_z) > max_val:
                                         max_val = hist.GetBinContent(n_x, n_y, n_z)
                                         max_err = hist.GetBinError(n_x, n_y, n_z)
-                                        max_x = x
-                                        max_y = y
-                                        max_z = z
+                                        max_x = hist.GetXaxis().GetBinCenter(n_x)
+                                        max_y = hist.GetYaxis().GetBinCenter(n_y)
+                                        max_z = hist.GetZaxis().GetBinCenter(n_z)
             self.value = Value(
                 val=max_val,
                 err=max_err,
