@@ -8,10 +8,11 @@ from value import UnknownValue, Value
 class BaseLevel:
     """Base level without sublevels"""
 
-    def __init__(self, name: str = "", title: str = ""):
+    def __init__(self, name: str = "", title: str = "", path: str = ""):
         self.name = name
         if self.name != "" and title == "":
             self.title = name
+        self.path = path
         self.value: Value = UnknownValue()
 
     def get_max_value(self) -> Value:
@@ -23,6 +24,9 @@ class BaseLevel:
     @abstractmethod
     def evaluate(self):
         """Evaluate the maximum value"""
+
+    @abstractmethod
+    def set_sub_level_paths(self, path_prefix: str = "", separator: str = "."): ...
 
 
 class Level(BaseLevel):
@@ -46,6 +50,11 @@ class Level(BaseLevel):
             self.sub_levels[sub_level].get_max_value() for sub_level in self.sub_levels
         )
 
+    def set_sub_level_paths(self, separator: str = "."):
+        for sub_level in self.sub_levels:
+            self.sub_levels[sub_level].path = self.path + sub_level
+            self.sub_levels[sub_level].set_sub_level_paths()
+
 
 def depth_first_search(obj: Level | BaseLevel):
     if isinstance(obj, Level):
@@ -53,3 +62,12 @@ def depth_first_search(obj: Level | BaseLevel):
             yield from depth_first_search(obj.sub_levels[level])
     else:
         yield obj
+
+
+def depth_first_search_with_path(obj: Level | BaseLevel, path=()):
+    if isinstance(obj, Level):
+        for level in obj.sub_levels:
+            new_path = path + (level,)
+            yield from depth_first_search_with_path(obj.sub_levels[level], new_path)
+    else:
+        yield path, obj

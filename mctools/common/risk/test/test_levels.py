@@ -97,3 +97,27 @@ class TestLevels(unittest.TestCase):
         self.assertEqual(
             lvl.sub_levels["L1_1"].sub_levels["L0_1"].get_max_value().val, 8.0
         )
+
+    def test_paths(self):
+        lvl = Level(
+            name="L4",
+            sub_levels={
+                "L3_0": Level(
+                    sub_levels={
+                        "L2_0": Level(
+                            name="L1_0",
+                            sub_levels={"L0_0": Zone(hist=""), "L0_1": Zone(hist="")},
+                        ),
+                        "L2_1": Zone(hist=""),
+                    }
+                ),
+                "L3_1": Level(
+                    sub_levels={
+                        "L2_0": Zone(hist=""),
+                        "L2_1": Zone(hist=""),
+                    }
+                ),
+            },
+        )
+        lvl.set_sub_level_paths()
+        self.assertEqual(lvl.path, "")
