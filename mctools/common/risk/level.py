@@ -47,19 +47,22 @@ class Level(BaseLevel):
     def evaluate(self):
         """Find the maximum value of all sublevels"""
         self.value = max(
-            self.sub_levels[sub_level].get_max_value() for sub_level in self.sub_levels
+            self[sub_level].get_max_value() for sub_level in self.sub_levels
         )
 
     def set_sub_level_paths(self, separator: str = "."):
         for sub_level in self.sub_levels:
-            self.sub_levels[sub_level].path = self.path + sub_level
-            self.sub_levels[sub_level].set_sub_level_paths()
+            self[sub_level].path = self.path + sub_level
+            self[sub_level].set_sub_level_paths()
+
+    def __getitem__(self, key: str):
+        return self.sub_levels[key]
 
 
 def depth_first_search(obj: Level | BaseLevel):
     if isinstance(obj, Level):
         for level in obj.sub_levels:
-            yield from depth_first_search(obj.sub_levels[level])
+            yield from depth_first_search(obj[level])
     else:
         yield obj
 
@@ -68,6 +71,6 @@ def depth_first_search_with_path(obj: Level | BaseLevel, path=()):
     if isinstance(obj, Level):
         for level in obj.sub_levels:
             new_path = path + (level,)
-            yield from depth_first_search_with_path(obj.sub_levels[level], new_path)
+            yield from depth_first_search_with_path(obj[level], new_path)
     else:
         yield path, obj

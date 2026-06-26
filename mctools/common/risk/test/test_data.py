@@ -47,23 +47,15 @@ class TestData(unittest.TestCase):
         self.assertEqual(data.sources["L2_0"].value.val, 14.0)
         self.assertEqual(data.sources["L2_1"].value.val, 42.0)
         # Level 1
-        self.assertEqual(data.sources["L2_0"].sub_levels["L1_0"].value.val, 7.0)
-        self.assertEqual(data.sources["L2_0"].sub_levels["L1_1"].value.val, 14.0)
-        self.assertEqual(data.sources["L2_1"].sub_levels["L1_0"].value.val, 28.0)
-        self.assertEqual(data.sources["L2_1"].sub_levels["L1_1"].value.val, 42.0)
+        self.assertEqual(data.sources["L2_0"]["L1_0"].value.val, 7.0)
+        self.assertEqual(data.sources["L2_0"]["L1_1"].value.val, 14.0)
+        self.assertEqual(data.sources["L2_1"]["L1_0"].value.val, 28.0)
+        self.assertEqual(data.sources["L2_1"]["L1_1"].value.val, 42.0)
         # Level 0 (only for L2_1 branch)
-        self.assertEqual(
-            data.sources["L2_1"].sub_levels["L1_0"].sub_levels["L0_0"].value.val, 21.0
-        )
-        self.assertEqual(
-            data.sources["L2_1"].sub_levels["L1_0"].sub_levels["L0_1"].value.val, 28.0
-        )
-        self.assertEqual(
-            data.sources["L2_1"].sub_levels["L1_1"].sub_levels["L0_0"].value.val, 35.0
-        )
-        self.assertEqual(
-            data.sources["L2_1"].sub_levels["L1_1"].sub_levels["L0_1"].value.val, 42.0
-        )
+        self.assertEqual(data.sources["L2_1"]["L1_0"]["L0_0"].value.val, 21.0)
+        self.assertEqual(data.sources["L2_1"]["L1_0"]["L0_1"].value.val, 28.0)
+        self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_0"].value.val, 35.0)
+        self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_1"].value.val, 42.0)
         # Combinations
         self.assertEqual(data.cross_level_combinations["c1"].value.val, 28.0)
         self.assertEqual(data.cross_level_combinations["c2"].value.val, 42.0)

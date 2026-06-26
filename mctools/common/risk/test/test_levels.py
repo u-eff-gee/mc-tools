@@ -28,21 +28,13 @@ class TestLevels(unittest.TestCase):
         # Maximum at Level 2
         self.assertEqual(lvl.get_max_value().val, 28.0)
         # Maxima at Level 1
-        self.assertEqual(lvl.sub_levels["L1_0"].get_max_value().val, 14.0)
-        self.assertEqual(lvl.sub_levels["L1_1"].get_max_value().val, 28.0)
+        self.assertEqual(lvl["L1_0"].get_max_value().val, 14.0)
+        self.assertEqual(lvl["L1_1"].get_max_value().val, 28.0)
         # Maxima at Level 0
-        self.assertEqual(
-            lvl.sub_levels["L1_0"].sub_levels["L0_0"].get_max_value().val, 7.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_0"].sub_levels["L0_1"].get_max_value().val, 14.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_1"].sub_levels["L0_0"].get_max_value().val, 21.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_1"].sub_levels["L0_1"].get_max_value().val, 28.0
-        )
+        self.assertEqual(lvl["L1_0"]["L0_0"].get_max_value().val, 7.0)
+        self.assertEqual(lvl["L1_0"]["L0_1"].get_max_value().val, 14.0)
+        self.assertEqual(lvl["L1_1"]["L0_0"].get_max_value().val, 21.0)
+        self.assertEqual(lvl["L1_1"]["L0_1"].get_max_value().val, 28.0)
 
         # 2) Constraints
         lvl = Level(
@@ -82,21 +74,13 @@ class TestLevels(unittest.TestCase):
         self.assertEqual(max_value.y, 0.5)
         self.assertEqual(max_value.z, -0.5)
         # Maxima at Level 1
-        self.assertEqual(lvl.sub_levels["L1_0"].get_max_value().val, 14.0)
-        self.assertEqual(lvl.sub_levels["L1_1"].get_max_value().val, 18.0)
+        self.assertEqual(lvl["L1_0"].get_max_value().val, 14.0)
+        self.assertEqual(lvl["L1_1"].get_max_value().val, 18.0)
         # Maxima at Level 0
-        self.assertEqual(
-            lvl.sub_levels["L1_0"].sub_levels["L0_0"].get_max_value().val, 7.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_0"].sub_levels["L0_1"].get_max_value().val, 14.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_1"].sub_levels["L0_0"].get_max_value().val, 18.0
-        )
-        self.assertEqual(
-            lvl.sub_levels["L1_1"].sub_levels["L0_1"].get_max_value().val, 8.0
-        )
+        self.assertEqual(lvl["L1_0"]["L0_0"].get_max_value().val, 7.0)
+        self.assertEqual(lvl["L1_0"]["L0_1"].get_max_value().val, 14.0)
+        self.assertEqual(lvl["L1_1"]["L0_0"].get_max_value().val, 18.0)
+        self.assertEqual(lvl["L1_1"]["L0_1"].get_max_value().val, 8.0)
 
     def test_paths(self):
         lvl = Level(
