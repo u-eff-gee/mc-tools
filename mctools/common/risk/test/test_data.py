@@ -34,7 +34,7 @@ class TestData(unittest.TestCase):
                     }
                 ),
             },
-            cross_level_combinations={
+            arbitrary_level_combos={
                 "custom0": SourceCombination(
                     combination=[["L2_0"], ["L2_1", "L1_0", "L0_1"]]
                 ),
@@ -72,8 +72,8 @@ class TestData(unittest.TestCase):
         self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_0"].value.val, 35.0)
         self.assertEqual(data.sources["L2_1"]["L1_1"]["L0_1"].value.val, 42.0)
         # Combinations
-        self.assertEqual(data.cross_level_combinations["custom0"].value.val, 28.0)
-        self.assertEqual(data.cross_level_combinations["custom1"].value.val, 42.0)
+        self.assertEqual(data.arbitrary_level_combos["custom0"].value.val, 28.0)
+        self.assertEqual(data.arbitrary_level_combos["custom1"].value.val, 42.0)
 
         # Test string representation
         self.assertEqual(

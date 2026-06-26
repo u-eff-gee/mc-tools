@@ -131,7 +131,7 @@ class Case:
                     buffer.append("      }{}%\n")
                 buffer.append("    }{}%\n")
             buffer.append("  }{%\n")
-            for combo in scenario.data.cross_level_combinations:
+            for combo in scenario.data.arbitrary_level_combos:
                 buffer.append(
                     r"\ifthenelse{\equal{#1}{"
                     f"{combo}"
@@ -207,7 +207,7 @@ class Case:
                             r"\print"
                             "\n\n"
                         )
-            for combo in scenario.data.cross_level_combinations:
+            for combo in scenario.data.arbitrary_level_combos:
                 buffer.append(r"\def\combo{" f"{combo}" "}\n")
                 buffer.append(
                     r"\def\value{\rate{" f"{combo}" "}{}{}{}}\n" r"\printCombo" "\n\n"

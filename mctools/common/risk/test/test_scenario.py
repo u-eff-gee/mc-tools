@@ -49,7 +49,7 @@ class TestScenario(unittest.TestCase):
                             }
                         ),
                     },
-                    cross_level_combinations={
+                    arbitrary_level_combos={
                         "compare_l00": SourceCombination(
                             combination=[["L1_0", "L0_0"], ["L1_1", "L0_0"]]
                         )

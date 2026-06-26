@@ -31,12 +31,12 @@ class Data:
     def __init__(
         self,
         sources: dict[str, Level],
-        cross_level_combinations: dict[str, SourceCombination] | None = None,
+        arbitrary_level_combos: dict[str, SourceCombination] | None = None,
     ):
         self.sources = sources
-        self.cross_level_combinations: dict[str, SourceCombination] = {}
-        if cross_level_combinations is not None:
-            self.cross_level_combinations = cross_level_combinations
+        self.arbitrary_level_combos: dict[str, SourceCombination] = {}
+        if arbitrary_level_combos is not None:
+            self.arbitrary_level_combos = arbitrary_level_combos
 
     def __str__(
         self,
@@ -66,9 +66,9 @@ class Data:
         for source in self.sources:
             self.sources[source].path = path_prefix + source
             self.sources[source].set_sub_level_paths(separator=separator)
-        for combo in self.cross_level_combinations:
-            self.cross_level_combinations[combo].name = combo
-            self.cross_level_combinations[combo].path = path_prefix + combo
+        for combo in self.arbitrary_level_combos:
+            self.arbitrary_level_combos[combo].name = combo
+            self.arbitrary_level_combos[combo].path = path_prefix + combo
 
     def get_results(
         self, include_top_level: bool = True
@@ -80,11 +80,11 @@ class Data:
                 data.append(((self.sources[source].path,), self.sources[source]))
             for path, level in depth_first_search_with_path(self.sources[source]):
                 data.append((path, level))
-        for combo in self.cross_level_combinations:
+        for combo in self.arbitrary_level_combos:
             data.append(
                 (
-                    (self.cross_level_combinations[combo].path,),
-                    self.cross_level_combinations[combo],
+                    (self.arbitrary_level_combos[combo].path,),
+                    self.arbitrary_level_combos[combo],
                 )
             )
         return data
@@ -92,12 +92,12 @@ class Data:
     def __getitem__(self, key: str):
         if key in self.sources:
             return self.sources[key]
-        return self.cross_level_combinations[key]
+        return self.arbitrary_level_combos[key]
 
     def evaluate(self):
         for source in self.sources:
             self.sources[source].evaluate()
 
-        for combo in self.cross_level_combinations:
-            self.cross_level_combinations[combo].set_sources(self.sources)
-            self.cross_level_combinations[combo].evaluate()
+        for combo in self.arbitrary_level_combos:
+            self.arbitrary_level_combos[combo].set_sources(self.sources)
+            self.arbitrary_level_combos[combo].evaluate()
