@@ -3,7 +3,7 @@ import unittest
 
 import ROOT
 
-from mctools.common.risk.data import Data
+from mctools.common.risk.data import Data, SourceCombination
 from mctools.common.risk.level import Level
 from mctools.common.risk.scenario import Scenario
 from mctools.common.risk.test.input_histogram import create_test_histogram
@@ -48,11 +48,20 @@ class TestScenario(unittest.TestCase):
                                 "L0_1": Zone(hist="l11l01"),
                             }
                         ),
-                    }
+                    },
+                    cross_level_combinations={
+                        "compare_l00": SourceCombination(
+                            combination=[["L1_0", "L0_0"], ["L1_1", "L0_0"]]
+                        )
+                    },
                 ),
                 root_file_name=tmp_root.name,
                 scale_file_name=tmp_scale.name,
             )
             scenario.evaluate()
-            self.assertEqual(scenario.data.sources["L1_0"].value.val, 14.0)
-            self.assertEqual(scenario.data.sources["L1_1"].value.val, 28.0)
+            self.assertEqual(scenario["L1_0"].value.val, 14.0)
+            self.assertEqual(scenario["L1_1"].value.val, 28.0)
+            self.assertEqual(scenario["compare_l00"].value.val, 21.0)
+
+            self.assertEqual(scenario["L1_0"]["L0_0"].path, "test.L1_0.L0_0")
+            self.assertEqual(scenario["compare_l00"].path, "test.compare_l00")
