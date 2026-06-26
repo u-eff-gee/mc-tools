@@ -57,6 +57,11 @@ class Data:
                 )
             )
         return data
+    
+    def __getitem__(self, key: str):
+        if key in self.sources:
+            return self.sources[key]
+        return self.cross_level_combinations[key]
 
     def evaluate(self):
         for source in self.sources:

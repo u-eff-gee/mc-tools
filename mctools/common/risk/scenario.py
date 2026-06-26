@@ -48,5 +48,8 @@ class Scenario:
             separator=separator, path_prefix=self.name + separator
         )
 
+    def __getitem__(self, key: str):
+        return self.data[key]
+
     def evaluate(self):
         self.data.evaluate()
