@@ -36,9 +36,10 @@ class Level(BaseLevel):
         self,
         name: str = "",
         title: str = "",
+        path: str = "",
         sub_levels: dict[str, "Level"] | None = None,
     ):
-        super().__init__(name=name, title=title)
+        super().__init__(name=name, title=title, path=path)
         if sub_levels is None:
             self.sub_levels: dict[str, Level] = {}
         else:
@@ -52,7 +53,7 @@ class Level(BaseLevel):
 
     def set_sub_level_paths(self, separator: str = "."):
         for sub_level in self.sub_levels:
-            self[sub_level].path = self.path + sub_level
+            self[sub_level].path = self.path + separator + sub_level
             self[sub_level].set_sub_level_paths()
 
     def __getitem__(self, key: str):
