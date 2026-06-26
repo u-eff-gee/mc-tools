@@ -3,8 +3,14 @@ from mctools.common.risk.value import Value
 
 
 class SourceCombination(BaseLevel):
-    def __init__(self, combination: list[list[str]], name: str = "", title: str = ""):
-        super().__init__(name=name, title=title)
+    def __init__(
+        self,
+        combination: list[list[str]],
+        name: str = "",
+        title: str = "",
+        path: str = "",
+    ):
+        super().__init__(name=name, title=title, path=path)
         self.combination = combination
         self.sources: dict[str, Level] | None = None
 
