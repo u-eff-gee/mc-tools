@@ -144,9 +144,9 @@ class Case:
             for combo in self.scenarios[scenario].data.arbitrary_level_combos:
                 buffer.append(
                     r"\ifthenelse{\equal{#1}{"
-                    f"{combo}"
+                    f"{self.scenarios[scenario][combo].path}"
                     "}}{% "
-                    f"{combo}\n"
+                    f"{self.scenarios[scenario][combo].path}\n"
                     f"{getPrintedValue(value=self.scenarios[scenario][combo].value)}"
                 )
                 buffer.append("}{}\n")
@@ -220,9 +220,15 @@ class Case:
                             "\n\n"
                         )
             for combo in self.scenarios[scenario].data.arbitrary_level_combos:
-                buffer.append(r"\def\combo{" f"{combo}" "}\n")
                 buffer.append(
-                    r"\def\value{\rate{" f"{combo}" "}{}{}{}}\n" r"\printCombo" "\n\n"
+                    r"\def\combo{" f"{self.scenarios[scenario][combo].path}" "}\n"
+                )
+                buffer.append(
+                    r"\def\value{\rate{"
+                    f"{self.scenarios[scenario][combo].path}"
+                    "}{}{}{}}\n"
+                    r"\printCombo"
+                    "\n\n"
                 )
         buffer.append(r"\end{document}")
         return "".join(buffer)
